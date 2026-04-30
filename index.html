@@ -534,6 +534,7 @@ input:focus,select:focus{border-color:var(--red);}
   <div class="grid2">
     <!-- LEFT -->
     <div>
+      <!-- Shipment -->
       <div class="card mb14">
         <div class="ctitle"><span class="dot"></span>Shipment Details</div>
         <div class="mb10">
@@ -549,38 +550,59 @@ input:focus,select:focus{border-color:var(--red);}
         </div>
       </div>
 
-      <!-- Product Details -->
-      <div class="card mb14" id="productCard">
-        <div class="ctitle"><span class="dot"></span>Product Details</div>
-        <div class="mb10">
-          <label class="lbl">Select Saved Product</label>
-          <div class="sw">
-            <select id="productSelect" onchange="selectProduct(this.value)">
-              <option value="">-- Enter amount manually --</option>
+      <!-- Multi-Product Cart -->
+      <div class="card mb14">
+        <div class="ctitle"><span class="dot"></span>Products
+          <span style="margin-left:auto;font-size:.68rem;font-weight:400;color:var(--dim);" id="cartCount">0 items</span>
+        </div>
+
+        <!-- Add product row -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <div class="sw" style="flex:1;min-width:140px;">
+            <select id="productSelect" onchange="addFromDropdown(this.value)" style="font-size:.82rem;">
+              <option value="">+ From saved products</option>
             </select>
           </div>
+          <button onclick="addManualProduct()" style="background:var(--red);border:none;border-radius:2px;color:white;padding:8px 12px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;letter-spacing:1px;">+ Manual</button>
         </div>
-        <div class="mb10">
-          <label class="lbl">Product Name</label>
-          <input type="text" id="productName" placeholder="Product name" oninput="calculate()">
-        </div>
-        <div class="grid2" style="gap:10px;" class="mb10">
-          <div>
-            <label class="lbl">Unit Price (PKR)</label>
-            <div class="pw"><span class="pfx">₨</span>
-              <input type="number" id="productAmt" value="" min="0" step="1" placeholder="0" oninput="calculate()">
+
+        <!-- Manual add row (hidden by default) -->
+        <div id="manualAddRow" style="display:none;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;padding:10px;margin-bottom:10px;">
+          <div class="grid2" style="gap:8px;margin-bottom:8px;">
+            <div>
+              <label class="lbl">Product Name</label>
+              <input type="text" id="manualName" placeholder="Name">
+            </div>
+            <div>
+              <label class="lbl">Unit Price (₨)</label>
+              <div class="pw"><span class="pfx">₨</span>
+                <input type="number" id="manualPrice" min="0" step="1" placeholder="0">
+              </div>
             </div>
           </div>
-          <div>
-            <label class="lbl">Quantity</label>
-            <input type="number" id="productQty" value="1" min="1" step="1" oninput="calculate()">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div style="flex:1;">
+              <label class="lbl">Qty</label>
+              <input type="number" id="manualQty" value="1" min="1" step="1" style="width:100%;">
+            </div>
+            <div style="display:flex;gap:6px;align-items:flex-end;padding-bottom:0;margin-top:16px;">
+              <button onclick="confirmManualAdd()" style="background:var(--red);border:none;border-radius:2px;color:white;padding:7px 12px;font-size:.7rem;cursor:pointer;font-weight:600;">Add</button>
+              <button onclick="document.getElementById('manualAddRow').style.display='none'" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);padding:7px 10px;font-size:.7rem;cursor:pointer;">✕</button>
+            </div>
           </div>
         </div>
-        <div style="background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:2px;padding:8px 12px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:.7rem;color:var(--dim);">Total Product Amount</span>
-          <span style="font-family:'DM Mono',monospace;font-size:.9rem;color:var(--txt);" id="productTotal">₨0</span>
+
+        <!-- Cart items list -->
+        <div id="cartItems" style="margin-bottom:10px;"></div>
+
+        <!-- Cart total -->
+        <div id="cartTotalRow" style="display:none;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:2px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.7rem;color:var(--dim);">Products Subtotal</span>
+          <span style="font-family:'DM Mono',monospace;font-size:.9rem;color:var(--txt);" id="cartSubtotal">₨0</span>
         </div>
-        <div>
+
+        <!-- Discount — shown only when items in cart -->
+        <div id="discountRow" style="display:none;margin-top:10px;">
           <label class="lbl">Discount</label>
           <div style="display:flex;gap:8px;align-items:center;">
             <div class="sw" style="width:130px;flex-shrink:0;">
@@ -1670,20 +1692,26 @@ function calculate(){
   setT('rOther',   fmt(otherCharge));
 
   // ── Product + COD tax logic
-  const unitPrice   = parseFloat(document.getElementById('productAmt')?.value)||0;
-  const productQty  = Math.max(1, parseInt(document.getElementById('productQty')?.value)||1);
-  const productAmt  = unitPrice * productQty;
+  // ── Cart: get all products from _cart array
+  var cartTotal = 0;
+  var cartItems = window._cart || [];
+  for(var ci=0; ci<cartItems.length; ci++){
+    cartTotal += (cartItems[ci].price * cartItems[ci].qty);
+  }
+  var productAmt = cartTotal;
+  var unitPrice  = cartTotal; // for single product compat
+  var productQty = 1;
+  var productName = cartItems.length===1 ? cartItems[0].name : (cartItems.length>1 ? cartItems.length+' Products' : '');
+
   const discountType= document.getElementById('discountType')?.value||'fixed';
   const discountVal = parseFloat(document.getElementById('discountAmt')?.value)||0;
-  const productName = document.getElementById('productName')?.value||'';
 
   // Update discount prefix
   var discPfx = document.getElementById('discPfx');
   if(discPfx) discPfx.textContent = discountType==='pct' ? '%' : '₨';
 
-  // Update product total display
-  var ptEl = document.getElementById('productTotal');
-  if(ptEl) ptEl.textContent = '₨'+Math.round(productAmt).toLocaleString('en-PK');
+  // Cart UI
+  renderCart();
   const pm = lsGet('ksi_paymode',{v:'cod'}).v||'cod';
   const gg = lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax,paymode:'cod'});
   const whtPct  = gg.wht  || DEF.wht;
@@ -1709,7 +1737,7 @@ function calculate(){
 
   if(hasProduct){
     // Product + Delivery subtotal
-    const discountAmt = discountType==='pct' ? productAmt*(discountVal/100) : discountVal;
+    var discountAmt = discountType==='pct' ? Math.round(productAmt*(discountVal/100)) : discountVal;
     const plusD       = productAmt + total;
     const afterDisc   = plusD - discountAmt;
     const taxBase     = afterDisc; // WHT & Sales tax on (product+delivery-discount)
@@ -1790,7 +1818,8 @@ function calculate(){
     otherLbl: document.getElementById('otherLabel')?.value||'Other',
     deliveryTotal: total,
     productAmt:   productAmt,
-    productName:  document.getElementById('productName')?.value||'',
+    productName:  productName,
+    cartItems:    window._cart||[],
     discountAmt:  discountAmt||0,
     discountType: discountType,
     discountVal:  discountVal,
@@ -1891,7 +1920,7 @@ function pk(n){ return '₨'+Math.round(n).toLocaleString('en-PK'); }
 
 function buildSummaryText(){
   var L = _last;
-  if(!L.courierName) return 'No calculation yet.';
+  if(!L.deliveryTotal && L.deliveryTotal!==0) return 'Calculate first — enter weight and zone.';
   var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
   var co = lsGet('ksi_company',{});
   var lines = [];
@@ -1911,13 +1940,22 @@ function buildSummaryText(){
     lines.push('QUOTATION / INVOICE');
     lines.push(D);
 
-    // Product line — name + qty + price
-    var pname = (L.productName||'Product');
-    if(L.productQty > 1){
-      lines.push(pname + '  ' + pk(L.unitPrice) + ' x ' + L.productQty + ' = ' + pk(L.productAmt));
+    // Products list from cart
+    var cartList = L.cartItems || [];
+    if(cartList.length > 0){
+      for(var ci=0; ci<cartList.length; ci++){
+        var item = cartList[ci];
+        var iTotal = Math.round(item.price * item.qty);
+        if(item.qty > 1){
+          lines.push(item.name + '  ' + pk(item.price) + ' x ' + item.qty + ' = ' + pk(iTotal));
+        } else {
+          lines.push(item.name + '   :  ' + pk(iTotal));
+        }
+      }
     } else {
-      lines.push(pname + '   :  ' + pk(L.productAmt));
+      lines.push((L.productName||'Product') + '   :  ' + pk(L.productAmt));
     }
+    lines.push('');
     lines.push('Delivery Charges  :  ' + pk(L.deliveryTotal));
     lines.push('Weight            :  ' + L.weight + ' KG');
 
@@ -2244,9 +2282,11 @@ function useFreeVersion(){
   document.getElementById('licenseScreen').style.display = 'none';
   applyLicenseMode('free');
   loadAll();
+  applyScToCalc(lsGet('ksi_courier',{v:'leopards'}).v||'leopards');
   calculate();
   updateProductDropdown();
   loadCompany();
+  renderCart();
 }
 
 // ── Apply license restrictions
@@ -2664,6 +2704,99 @@ function updateInvoicePreview(){
 }
 
 // ══════════════════════════════════════════════
+//  CART SYSTEM (Calculator multi-product)
+// ══════════════════════════════════════════════
+window._cart = [];
+
+function addFromDropdown(id){
+  if(!id) return;
+  var prods = getProducts();
+  var prod = null;
+  for(var i=0;i<prods.length;i++){ if(prods[i].id==id) prod=prods[i]; }
+  if(!prod) return;
+  // Check if already in cart
+  for(var j=0;j<window._cart.length;j++){
+    if(window._cart[j].id==id){
+      window._cart[j].qty++;
+      document.getElementById('productSelect').value='';
+      calculate(); return;
+    }
+  }
+  window._cart.push({id:prod.id, name:prod.name, price:prod.price, qty:1});
+  document.getElementById('productSelect').value='';
+  calculate();
+}
+
+function addManualProduct(){
+  document.getElementById('manualAddRow').style.display='block';
+  document.getElementById('manualName').focus();
+}
+
+function confirmManualAdd(){
+  var name  = document.getElementById('manualName').value.trim();
+  var price = parseFloat(document.getElementById('manualPrice').value)||0;
+  var qty   = parseInt(document.getElementById('manualQty').value)||1;
+  if(!name){ alert('Enter product name'); return; }
+  if(!price){ alert('Enter price'); return; }
+  window._cart.push({id: Date.now(), name:name, price:price, qty:qty});
+  document.getElementById('manualAddRow').style.display='none';
+  document.getElementById('manualName').value='';
+  document.getElementById('manualPrice').value='';
+  document.getElementById('manualQty').value='1';
+  calculate();
+}
+
+function removeCartItem(idx){
+  window._cart.splice(idx,1);
+  calculate();
+}
+
+function updateCartQty(idx, qty){
+  qty = parseInt(qty)||1;
+  if(qty < 1) qty=1;
+  window._cart[idx].qty = qty;
+  calculate();
+}
+
+function renderCart(){
+  var el = document.getElementById('cartItems');
+  if(!el) return;
+
+  var countEl = document.getElementById('cartCount');
+  var totalRow = document.getElementById('cartTotalRow');
+  var discRow  = document.getElementById('discountRow');
+  var subtotEl = document.getElementById('cartSubtotal');
+
+  if(!window._cart || window._cart.length===0){
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--dim);font-size:.78rem;">No products added — use dropdown or + Manual</div>';
+    if(countEl) countEl.textContent='0 items';
+    if(totalRow) totalRow.style.display='none';
+    if(discRow)  discRow.style.display='none';
+    return;
+  }
+
+  var total=0;
+  var html='';
+  for(var i=0;i<window._cart.length;i++){
+    var item=window._cart[i];
+    var lineTotal = Math.round(item.price*item.qty);
+    total += lineTotal;
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:5px;">';
+    html += '<div style="flex:1;font-size:.8rem;color:var(--txt);">'+item.name+'</div>';
+    html += '<input type="number" value="'+item.qty+'" min="1" style="width:44px;text-align:center;background:var(--card);border:1px solid var(--bdr);border-radius:2px;color:var(--txt);font-size:.78rem;padding:3px 4px;" onchange="updateCartQty('+i+',this.value)">';
+    html += '<div style="font-family:DM Mono,monospace;font-size:.8rem;color:var(--txt);min-width:70px;text-align:right;">&#8360;'+lineTotal.toLocaleString('en-PK')+'</div>';
+    html += '<button onclick="removeCartItem('+i+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.65rem;padding:3px 7px;cursor:pointer;flex-shrink:0;">✕</button>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+
+  if(countEl) countEl.textContent = window._cart.length + ' item'+(window._cart.length>1?'s':'');
+  if(totalRow){ totalRow.style.display='flex'; }
+  if(subtotEl) subtotEl.textContent = '&#8360;'+total.toLocaleString('en-PK');
+  if(discRow)  discRow.style.display = window._cart.length>0 ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════
 //  PRODUCTS MANAGER
 // ══════════════════════════════════════════════
 function getProducts(){
@@ -2732,35 +2865,24 @@ function renderProducts(){
 }
 
 function useProduct(id){
-  const prod = getProducts().find(p=>p.id===id);
-  if(!prod) return;
-  // Go to calculator
-  const calcBtn = document.querySelector('.ntab');
-  if(calcBtn) showPage('calc', calcBtn);
-  // Fill in
-  setTimeout(()=>{
-    const nameEl  = document.getElementById('productName');
-    const amtEl   = document.getElementById('productAmt');
-    const selEl   = document.getElementById('productSelect');
-    if(nameEl) nameEl.value  = prod.name;
-    if(amtEl)  amtEl.value   = prod.price;
-    if(selEl)  selEl.value   = prod.id;
-    calculate();
-  },100);
-}
-
-function selectProduct(id){
-  if(!id) return;
   var prods = getProducts();
   var prod = null;
   for(var i=0;i<prods.length;i++){ if(prods[i].id==id){ prod=prods[i]; break; } }
   if(!prod) return;
-  var nameEl = document.getElementById('productName');
-  var amtEl  = document.getElementById('productAmt');
-  if(nameEl) nameEl.value = prod.name;
-  if(amtEl)  amtEl.value  = prod.price;
-  calculate();
+  var calcBtn = document.querySelector('.ntab');
+  if(calcBtn) showPage('calc', calcBtn);
+  setTimeout(function(){
+    // Add to cart
+    var found=false;
+    for(var j=0;j<window._cart.length;j++){
+      if(window._cart[j].id==id){ window._cart[j].qty++; found=true; break; }
+    }
+    if(!found) window._cart.push({id:prod.id,name:prod.name,price:prod.price,qty:1});
+    calculate();
+  },100);
 }
+
+function selectProduct(id){ addFromDropdown(id); }
 
 function updateProductDropdown(){
   var sel = document.getElementById('productSelect');
