@@ -455,6 +455,8 @@ input:focus,select:focus{border-color:var(--red);}
     </div>
   </div>
   <button class="ntab active" onclick="showPage('calc',this)">🧮 Calculator</button>
+  <button class="ntab" onclick="showPage('products',this)">📦 Products</button>
+  <button class="ntab" onclick="showPage('pricing',this);fetchPricingFromSheet();">💰 Pricing</button>
   <button class="ntab" onclick="showPage('settings',this)">⚙️ Settings</button>
 </nav>
 
@@ -493,16 +495,31 @@ input:focus,select:focus{border-color:var(--red);}
         </div>
       </div>
 
-      <!-- Product Amount -->
+      <!-- Product Details -->
       <div class="card mb14" id="productCard">
         <div class="ctitle"><span class="dot"></span>Product Details</div>
+        <div class="mb10">
+          <label class="lbl">Saved Product Select Karein</label>
+          <div class="sw">
+            <select id="productSelect" onchange="selectProduct(this.value)">
+              <option value="">-- Manual amount enter karein --</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb10">
+          <label class="lbl">Product Name</label>
+          <input type="text" id="productName" placeholder="Product ka naam" oninput="calculate()">
+        </div>
         <div>
           <label class="lbl">Product Amount (PKR) — optional</label>
           <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="productAmt" value="" min="0" step="1" placeholder="Leave empty for delivery only" oninput="calculate()">
+            <input type="number" id="productAmt" value="" min="0" step="1" placeholder="Khali chhoren = sirf delivery" oninput="calculate()">
           </div>
-          <div style="font-size:.62rem;color:var(--mut);margin-top:4px;">
-            If entered: shows Product + Delivery + Grand Total with taxes (COD mode)
+        </div>
+        <div class="mb10" style="margin-top:10px;">
+          <label class="lbl">Discount (PKR)</label>
+          <div class="pw"><span class="pfx">₨</span>
+            <input type="number" id="discountAmt" value="0" min="0" step="1" oninput="calculate()">
           </div>
         </div>
       </div>
@@ -641,6 +658,14 @@ input:focus,select:focus{border-color:var(--red);}
               <span class="rl">Sales Tax (<span id="lblStax">2</span>% of above)</span>
               <span class="rv" id="bStax">—</span>
             </div>
+            <div class="rrow" id="rowCodTax" style="display:none">
+              <span class="rl">COD Tax (WHT+Sales)</span>
+              <span class="rv" id="bCodTax">—</span>
+            </div>
+            <div class="rrow" id="rowDiscount" style="display:none">
+              <span class="rl" style="color:#81C784;">Discount</span>
+              <span class="rv" id="bDiscount" style="color:#81C784;">—</span>
+            </div>
             <div class="rrow rsub" style="background:rgba(211,47,47,.08)">
               <span class="rl" style="color:var(--rlight);font-weight:600">Grand Total</span>
               <span class="rv" id="bGrandTotal" style="color:var(--rlight);font-size:1rem">—</span>
@@ -735,6 +760,86 @@ input:focus,select:focus{border-color:var(--red);}
 
 
 <!-- ══════════════════════════════════════════
+     PRODUCTS PAGE
+══════════════════════════════════════════ -->
+<div id="page-products" class="page">
+<div class="wrap">
+  <div class="pg-title">Products</div>
+  <div class="pg-sub">Apni products save karein — calculator mein select karein</div>
+
+  <!-- Add Product -->
+  <div class="card mb14">
+    <div class="ctitle"><span class="dot"></span>Product Add Karein</div>
+    <div class="grid2" style="gap:12px;">
+      <div>
+        <label class="lbl">Product Name</label>
+        <input type="text" id="prodName" placeholder="e.g. Cotton Shirt">
+      </div>
+      <div>
+        <label class="lbl">Product Price (PKR)</label>
+        <div class="pw"><span class="pfx">₨</span>
+          <input type="number" id="prodPrice" min="0" step="1" placeholder="2500">
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <label class="lbl">Notes (Optional)</label>
+      <input type="text" id="prodNotes" placeholder="Size, Color, SKU...">
+    </div>
+    <div class="save-bar">
+      <button class="btn btn-red" onclick="addProduct()">➕ Add Product</button>
+      <span class="saved-msg" id="saved-product">✔ Saved!</span>
+    </div>
+  </div>
+
+  <!-- Products List -->
+  <div class="card">
+    <div class="ctitle"><span class="dot"></span>Saved Products</div>
+    <div style="margin-bottom:12px;display:flex;gap:8px;">
+      <input type="text" id="prodSearch" placeholder="Search products..." oninput="renderProducts()" style="flex:1;">
+    </div>
+    <div id="productsList">
+      <div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">
+        Koi product nahi — upar se add karein
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PRICING PAGE
+══════════════════════════════════════════ -->
+<div id="page-pricing" class="page">
+<div class="wrap">
+  <div class="pg-title">Pricing</div>
+  <div class="pg-sub">License plans aur rabta ki maloomat</div>
+
+  <div class="card">
+    <div class="ctitle"><span class="dot"></span>License Plans</div>
+    <div id="pricingLoading" style="text-align:center;padding:40px;color:var(--dim);font-size:.8rem;letter-spacing:1px;">
+      ⏳ Loading...
+    </div>
+    <div id="pricingContent" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;" id="priceCards"></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--txt);margin-bottom:14px;" id="buyHeading"></div>
+      <div id="buySteps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <div id="buyNote" class="note" style="margin-bottom:20px;"></div>
+      <button onclick="openWhatsAppFromPricing()" style="width:100%;padding:14px;background:#25D366;border:none;border-radius:3px;color:white;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ابھی WhatsApp کریں
+      </button>
+      <div style="text-align:center;font-size:.75rem;color:var(--dim);margin-top:10px;" id="pricingWaNum"></div>
+    </div>
+    <div id="pricingError" style="display:none;text-align:center;padding:30px;">
+      <div style="color:var(--rlight);font-size:.8rem;margin-bottom:12px;">❌ Prices load nahi huiñ. Internet check karein.</div>
+      <button onclick="fetchPricingFromSheet()" class="btn btn-ghost">↺ Dobara Try</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
      SETTINGS PAGE
 ══════════════════════════════════════════ -->
 <div id="page-settings" class="page">
@@ -744,7 +849,6 @@ input:focus,select:focus{border-color:var(--red);}
 
   <div class="stab-bar">
     <button class="stab active" onclick="showStab('general',this)">🏠 General</button>
-    <button class="stab" id="pricingStab" onclick="showStab('pricing',this)">💰 Pricing</button>
     <button class="stab" onclick="showStab('leopards',this)">🐆 Leopards</button>
     <button class="stab" onclick="showStab('insta',this)">⚡ Insta World</button>
     <button class="stab" onclick="showStab('call',this)">📞 Call Courier</button>
@@ -832,40 +936,6 @@ input:focus,select:focus{border-color:var(--red);}
     </div>
 
 
-  </div>
-
-  <!-- ══ PRICING TAB ══ -->
-  <div id="stab-pricing" class="stab-page">
-    <div class="card">
-      <div class="ctitle"><span class="dot"></span>Software Pricing</div>
-      <div id="pricingLoading" style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;letter-spacing:1px;">
-        ⏳ Loading...
-      </div>
-      <div id="pricingContent" style="display:none;">
-        <!-- Prices -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;" id="priceCards"></div>
-        <!-- Buy Heading -->
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--txt);margin-bottom:12px;" id="buyHeading"></div>
-        <!-- Steps -->
-        <div id="buySteps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
-        <!-- Note -->
-        <div id="buyNote" class="note" style="margin-bottom:16px;"></div>
-        <!-- WhatsApp Button -->
-        <button id="pricingWaBtn" onclick="openWhatsAppFromPricing()"
-          style="width:100%;padding:13px;background:#25D366;border:none;border-radius:3px;
-          color:white;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;
-          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          ابھی WhatsApp کریں
-        </button>
-        <div style="margin-top:10px;text-align:center;font-size:.7rem;color:var(--dim);" id="pricingWaNum"></div>
-      </div>
-      <div id="pricingError" style="display:none;text-align:center;padding:20px;color:var(--rlight);font-size:.78rem;">
-        ❌ Prices load nahi huiñ. Internet check karein.
-        <br><br>
-        <button onclick="fetchPricingFromSheet()" class="btn btn-ghost" style="font-size:.7rem;">↺ Dobara Try Karein</button>
-      </div>
-    </div>
   </div>
 
   <!-- ══ LEOPARDS TAB ══ -->
@@ -1467,7 +1537,9 @@ function calculate(){
   setT('rOther',   fmt(otherCharge));
 
   // ── Product + COD tax logic
-  const productAmt = parseFloat(document.getElementById('productAmt')?.value)||0;
+  const productAmt  = parseFloat(document.getElementById('productAmt')?.value)||0;
+  const discountAmt = parseFloat(document.getElementById('discountAmt')?.value)||0;
+  const productName = document.getElementById('productName')?.value||'';
   const pm = lsGet('ksi_paymode',{v:'cod'}).v||'cod';
   const gg = lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax,paymode:'cod'});
   const whtPct  = gg.wht  || DEF.wht;
@@ -1481,6 +1553,7 @@ function calculate(){
   vis('codBreakdown', showTax);
   vis('rowWht',  showTax);
   vis('rowStax', showTax);
+  vis('rowCodTax', showTax);
 
   // WHT / Sales tax labels
   setT('lblWht',  whtPct);
@@ -1492,19 +1565,24 @@ function calculate(){
 
   if(hasProduct){
     // Product + Delivery subtotal
-    const plusD   = productAmt + total;
-    const whtAmt  = showTax ? plusD*(whtPct/100)  : 0;
-    const staxAmt = showTax ? plusD*(staxPct/100) : 0;
-    const grandTotal = plusD + whtAmt + staxAmt;
+    const plusD      = productAmt + total;
+    const taxBase    = plusD; // WHT & Sales tax on product+delivery
+    const whtAmt     = showTax ? taxBase*(whtPct/100)  : 0;
+    const staxAmt    = showTax ? taxBase*(staxPct/100) : 0;
+    const codTaxTotal= whtAmt + staxAmt;
+    const grandTotal = plusD + codTaxTotal - discountAmt;
 
+    setT('bProduct',  fmt(productAmt));
+    setT('bDelivery', fmt(total));
+    setT('bPlusD',    fmt(plusD));
     if(showTax){
-      setT('bProduct',  fmt(productAmt));
-      setT('bDelivery', fmt(total));
-      setT('bPlusD',    fmt(plusD));
-      setT('bWht',      fmt(whtAmt));
-      setT('bStax',     fmt(staxAmt));
-      setT('bGrandTotal', fmt(grandTotal));
+      setT('bWht',   fmt(whtAmt));
+      setT('bStax',  fmt(staxAmt));
+      setT('bCodTax',fmt(codTaxTotal));
     }
+    vis('rowDiscount', discountAmt>0);
+    setT('bDiscount', fmt(discountAmt));
+    setT('bGrandTotal', fmt(grandTotal));
 
     // Sticky
     const stProd=document.getElementById('stProduct'); if(stProd) stProd.innerHTML=`<span class="cur">₨</span>${Math.round(productAmt).toLocaleString('en-PK')}`;
@@ -1562,7 +1640,9 @@ function calculate(){
     otherCharge: otherOn?(otherType==='pct'?running*(otherAmt/100):otherAmt):0,
     otherLbl: document.getElementById('otherLabel')?.value||'Other',
     deliveryTotal: total,
-    productAmt: parseFloat(document.getElementById('productAmt')?.value)||0,
+    productAmt:   parseFloat(document.getElementById('productAmt')?.value)||0,
+    productName:  document.getElementById('productName')?.value||'',
+    discountAmt:  parseFloat(document.getElementById('discountAmt')?.value)||0,
     isCOD: lsGet('ksi_paymode',{v:'cod'}).v==='cod',
     whtPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).wht||DEF.wht,
     staxPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).stax||DEF.stax,
@@ -1579,8 +1659,11 @@ function rr(l,v){
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.ntab').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  btn.classList.add('active');
+  const pg = document.getElementById('page-'+p);
+  if(pg) pg.classList.add('active');
+  if(btn) btn.classList.add('active');
+  // On products page open — render list
+  if(p==='products'){ renderProducts(); updateProductDropdown(); }
 }
 function showStab(t,btn){
   document.querySelectorAll('.stab-page').forEach(x=>x.classList.remove('active'));
@@ -1834,14 +1917,12 @@ function openWhatsAppFromPricing(){
 
 // ── Open Pricing tab in Settings
 function openPricingTab(){
-  // Go to settings page
-  const settingsBtn = document.querySelector('.ntab:last-child');
-  if(settingsBtn) showPage('settings', settingsBtn);
-  // Click pricing stab
-  setTimeout(()=>{
-    const pStab = document.getElementById('pricingStab');
-    if(pStab){ showStab('pricing', pStab); fetchPricingFromSheet(); }
-  }, 100);
+  // Find pricing nav button and click it
+  const allNtabs = document.querySelectorAll('.ntab');
+  let pricingBtn = null;
+  allNtabs.forEach(btn=>{ if(btn.textContent.includes('Pricing')) pricingBtn=btn; });
+  showPage('pricing', pricingBtn);
+  fetchPricingFromSheet();
 }
 
 // ── WhatsApp Contact (bar button)
@@ -1884,6 +1965,7 @@ function useFreeVersion(){
   applyLicenseMode('free');
   loadAll();
   calculate();
+  updateProductDropdown();
 }
 
 // ── Apply license restrictions
@@ -2212,6 +2294,104 @@ async function initApp(){
   } else {
     document.getElementById('licenseScreen').style.display = 'flex';
   }
+}
+
+// ══════════════════════════════════════════════
+//  PRODUCTS MANAGER
+// ══════════════════════════════════════════════
+function getProducts(){
+  return lsGet('ksi_products', []);
+}
+function saveProducts(prods){
+  lsSet('ksi_products', prods);
+}
+
+function addProduct(){
+  const name  = document.getElementById('prodName')?.value.trim();
+  const price = parseFloat(document.getElementById('prodPrice')?.value)||0;
+  const notes = document.getElementById('prodNotes')?.value.trim()||'';
+  if(!name){ alert('Product name likhein!'); return; }
+  if(!price){ alert('Price likhein!'); return; }
+
+  const prods = getProducts();
+  prods.push({ id: Date.now(), name, price, notes });
+  saveProducts(prods);
+  flash('saved-product');
+
+  // Clear
+  document.getElementById('prodName').value='';
+  document.getElementById('prodPrice').value='';
+  document.getElementById('prodNotes').value='';
+
+  renderProducts();
+  updateProductDropdown();
+}
+
+function deleteProduct(id){
+  const prods = getProducts().filter(p=>p.id!==id);
+  saveProducts(prods);
+  renderProducts();
+  updateProductDropdown();
+}
+
+function renderProducts(){
+  const list   = document.getElementById('productsList');
+  if(!list) return;
+  const search = (document.getElementById('prodSearch')?.value||'').toLowerCase();
+  let prods    = getProducts();
+  if(search) prods = prods.filter(p=>p.name.toLowerCase().includes(search)||p.notes.toLowerCase().includes(search));
+
+  if(!prods.length){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">Koi product nahi mila</div>';
+    return;
+  }
+
+  list.innerHTML = prods.map(p=>'<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:6px;">'+
+    '<div style="flex:1;">'+
+      '<div style="font-size:.85rem;color:var(--txt);font-weight:500;">'+p.name+'</div>'+
+      (p.notes?'<div style="font-size:.7rem;color:var(--dim);margin-top:2px;">'+p.notes+'</div>':'')+
+    '</div>'+
+    '<div style="font-family:DM Mono,monospace;font-size:.9rem;color:var(--txt);margin-right:8px;">₨'+Math.round(p.price).toLocaleString('en-PK')+'</div>'+
+    '<button onclick="useProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.65rem;padding:4px 8px;cursor:pointer;letter-spacing:1px;white-space:nowrap;">Use</button>'+
+    '<button onclick="deleteProduct('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.65rem;padding:4px 8px;cursor:pointer;">✕</button>'+
+  '</div>').join('');
+}
+
+function useProduct(id){
+  const prod = getProducts().find(p=>p.id===id);
+  if(!prod) return;
+  // Go to calculator
+  const calcBtn = document.querySelector('.ntab');
+  if(calcBtn) showPage('calc', calcBtn);
+  // Fill in
+  setTimeout(()=>{
+    const nameEl  = document.getElementById('productName');
+    const amtEl   = document.getElementById('productAmt');
+    const selEl   = document.getElementById('productSelect');
+    if(nameEl) nameEl.value  = prod.name;
+    if(amtEl)  amtEl.value   = prod.price;
+    if(selEl)  selEl.value   = prod.id;
+    calculate();
+  },100);
+}
+
+function selectProduct(id){
+  if(!id) return;
+  const prod = getProducts().find(p=>p.id==id);
+  if(!prod) return;
+  const nameEl = document.getElementById('productName');
+  const amtEl  = document.getElementById('productAmt');
+  if(nameEl) nameEl.value = prod.name;
+  if(amtEl)  amtEl.value  = prod.price;
+  calculate();
+}
+
+function updateProductDropdown(){
+  const sel = document.getElementById('productSelect');
+  if(!sel) return;
+  const prods = getProducts();
+  sel.innerHTML = '<option value="">-- Manual amount enter karein --</option>'+
+    prods.map(p=>'<option value="'+p.id+'">'+p.name+' — ₨'+Math.round(p.price).toLocaleString('en-PK')+'</option>').join('');
 }
 
 // ══════════════════════════════════════════════
