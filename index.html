@@ -264,7 +264,7 @@ input:focus,select:focus{border-color:var(--red);}
     <div class="lic-field">
       <label>License Key</label>
       <input type="text" id="licKeyInput" placeholder="KSI-XXXX-XXXX-XXXX" 
-        maxlength="16" oninput="formatKey(this)" onkeydown="if(event.key==='Enter') activateLicense()">
+        maxlength="19" oninput="formatKey(this)" onkeydown="if(event.key==='Enter') activateLicense()">
     </div>
 
     <button class="lic-btn" id="licBtn" onclick="activateLicense()">
@@ -1504,6 +1504,8 @@ function formatKey(input){
   if(val.length > 7) formatted += '-' + val.substring(7,11);
   if(val.length > 11) formatted += '-' + val.substring(11,15);
   input.value = formatted;
+  // Max length 18 (KSI-XXXX-XXXX-XXXX)
+  if(val.length >= 15) input.value = formatted;
 }
 
 function showLicMsg(msg, type){
