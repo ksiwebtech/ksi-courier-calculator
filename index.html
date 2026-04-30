@@ -1366,10 +1366,9 @@ function lsGet(k,def){
   }catch(e){return def;}
 }
 function lsSet(k,v){
-  // In free mode, block saving of products and settings
-  // Allow: ksi_license, ksi_machine_id, ksi_pricing_cache
+  // In free mode, block saving except essential keys
   if(_licType==='free'){
-    var allowInFree=['ksi_license','ksi_machine_id','ksi_pricing_cache'];
+    var allowInFree=['ksi_license','ksi_machine_id','ksi_pricing_cache','ksi_courier','ksi_paymode'];
     if(allowInFree.indexOf(k)===-1) return; // Block save in free mode
   }
   try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
@@ -1790,7 +1789,7 @@ function calculate(){
     otherCharge: otherOn?(otherType==='pct'?running*(otherAmt/100):otherAmt):0,
     otherLbl: document.getElementById('otherLabel')?.value||'Other',
     deliveryTotal: total,
-    productAmt:   parseFloat(document.getElementById('productAmt')?.value)||0,
+    productAmt:   productAmt,
     productName:  document.getElementById('productName')?.value||'',
     discountAmt:  discountAmt||0,
     discountType: discountType,
@@ -1798,8 +1797,13 @@ function calculate(){
     productQty:   productQty,
     unitPrice:    unitPrice,
     isCOD: lsGet('ksi_paymode',{v:'cod'}).v==='cod',
-    whtPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).wht||DEF.wht,
-    staxPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).stax||DEF.stax,
+    whtPct:  whtPct,
+    staxPct: staxPct,
+    whtAmt:  whtAmt||0,
+    staxAmt: staxAmt||0,
+    grandTotal: grandTotal||0,
+    plusD:   productAmt+total,
+    afterDisc: (productAmt+total)-(discountAmt||0),
   };
 }
 
@@ -1888,12 +1892,11 @@ function pk(n){ return '₨'+Math.round(n).toLocaleString('en-PK'); }
 function buildSummaryText(){
   var L = _last;
   if(!L.courierName) return 'No calculation yet.';
-  var Z = {wc:'Within City',za:'Zone A',zb:'Zone B',zc:'Zone C',sp:'Other City (Same Prov.)',op:'Other Province',ret:'Return'};
   var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
   var co = lsGet('ksi_company',{});
   var lines = [];
 
-  // ── Company Header
+  // ── Company Header (from Settings > Company)
   if(co.name)    lines.push(co.name.toUpperCase());
   if(co.tagline) lines.push(co.tagline);
   if(co.phone)   lines.push('Tel: ' + co.phone);
@@ -1902,57 +1905,47 @@ function buildSummaryText(){
   if(co.website) lines.push(co.website);
   lines.push(D);
   lines.push('Date: ' + new Date().toLocaleDateString('en-GB'));
-  lines.push('');
 
   if(L.productAmt > 0){
-    // ── Invoice with product
+    lines.push('');
     lines.push('QUOTATION / INVOICE');
     lines.push(D);
-    lines.push('');
-    lines.push('Order Details:');
 
-    // Product line
-    var pname = L.productName || 'Product';
+    // Product line — name + qty + price
+    var pname = (L.productName||'Product');
     if(L.productQty > 1){
       lines.push(pname + '  ' + pk(L.unitPrice) + ' x ' + L.productQty + ' = ' + pk(L.productAmt));
     } else {
-      lines.push(pname + '  :  ' + pk(L.productAmt));
+      lines.push(pname + '   :  ' + pk(L.productAmt));
     }
     lines.push('Delivery Charges  :  ' + pk(L.deliveryTotal));
-    lines.push('Courier           :  ' + L.courierName);
-    lines.push('Zone              :  ' + (Z[L.zone]||L.zone));
     lines.push('Weight            :  ' + L.weight + ' KG');
 
-    var plusD = L.productAmt + L.deliveryTotal;
-
+    // Discount
     if(L.discountAmt > 0){
       var discLbl = (L.discountType==='pct') ? 'Discount ('+L.discountVal+'%)' : 'Discount';
-      lines.push(discLbl + '          :  -' + pk(L.discountAmt));
+      lines.push(discLbl + '  :  -' + pk(L.discountAmt));
     }
     lines.push(D);
 
-    var afterDisc = plusD - (L.discountAmt||0);
-
-    if(L.isCOD){
-      var whtA  = afterDisc*(L.whtPct/100);
-      var staxA = afterDisc*(L.staxPct/100);
-      lines.push('WHT (' + L.whtPct + '%)             :  ' + pk(whtA));
-      lines.push('Sales Tax (' + L.staxPct + '%)        :  ' + pk(staxA));
-      lines.push(D);
-      lines.push('GRAND TOTAL       :  ' + pk(afterDisc + whtA + staxA));
-    } else {
-      lines.push('GRAND TOTAL       :  ' + pk(afterDisc));
+    // Taxes — use saved amounts from _last
+    if(L.isCOD && L.whtAmt > 0){
+      lines.push('WHT (' + L.whtPct + '%)           :  ' + pk(L.whtAmt));
     }
+    if(L.isCOD && L.staxAmt > 0){
+      lines.push('Sales Tax (' + L.staxPct + '%)     :  ' + pk(L.staxAmt));
+    }
+    lines.push(D);
+    lines.push('*GRAND TOTAL      :  ' + pk(L.grandTotal) + '*');
     lines.push(D);
 
   } else {
-    // ── Delivery only
+    // Delivery only
+    lines.push('');
     lines.push('DELIVERY CHARGES');
     lines.push(D);
     lines.push('Courier  :  ' + L.courierName);
-    lines.push('Zone     :  ' + (Z[L.zone]||L.zone));
     lines.push('Weight   :  ' + L.weight + ' KG');
-    lines.push('');
     lines.push('Total    :  ' + pk(L.deliveryTotal));
     lines.push(D);
   }
@@ -2770,11 +2763,14 @@ function selectProduct(id){
 }
 
 function updateProductDropdown(){
-  const sel = document.getElementById('productSelect');
+  var sel = document.getElementById('productSelect');
   if(!sel) return;
-  const prods = getProducts();
-  sel.innerHTML = '<option value="">-- Enter amount manually --</option>'+
-    prods.map(p=>'<option value="'+p.id+'">'+p.name+' — ₨'+Math.round(p.price).toLocaleString('en-PK')+'</option>').join('');
+  var prods = getProducts();
+  var opts = '<option value="">-- Enter amount manually --</option>';
+  for(var i=0;i<prods.length;i++){
+    opts += '<option value="'+prods[i].id+'">'+prods[i].name+' — ₨'+Math.round(prods[i].price).toLocaleString('en-PK')+'</option>';
+  }
+  sel.innerHTML = opts;
 }
 
 // ══════════════════════════════════════════════
