@@ -309,6 +309,69 @@ input:focus,select:focus{border-color:var(--red);}
   .wrap{padding:12px 10px calc(var(--sticky-mob) + 80px);}
 }
 
+/* ══ SETTINGS STAB MOBILE ══ */
+@media(max-width:768px){
+  /* Settings inner tabs — scrollable */
+  .stab-bar{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap;
+    scrollbar-width:none;
+    padding-bottom:2px;
+  }
+  .stab-bar::-webkit-scrollbar{display:none;}
+  .stab{
+    white-space:nowrap;
+    padding:8px 11px;
+    font-size:.62rem;
+    letter-spacing:1px;
+    flex-shrink:0;
+  }
+
+  /* Courier selector cards — stack on mobile */
+  .ci{flex-wrap:nowrap;padding:10px 12px;}
+  .ci-chip{width:38px;height:32px;flex-shrink:0;}
+  .ci-chip img{width:38px;height:32px;object-fit:contain;}
+  .ci-name{font-size:.82rem;letter-spacing:1.5px;}
+  .ci-desc{font-size:.6rem;}
+  .ci-active{font-size:.58rem;padding:2px 6px;}
+
+  /* Rate tables — horizontal scroll */
+  .rtable-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .rtable{min-width:420px;}
+  .rtable th,.rtable td{font-size:.65rem;padding:6px 7px;white-space:nowrap;}
+  .rtable td:first-child{min-width:140px;white-space:normal;}
+  .rtable input[type=number]{min-width:70px;font-size:.8rem;padding:5px 6px;}
+
+  /* sc-grid — 1 column */
+  .sc-grid{grid-template-columns:1fr !important;}
+
+  /* save-bar */
+  .save-bar{flex-wrap:wrap;gap:8px;}
+  .save-bar .btn{font-size:.68rem;padding:7px 12px;}
+
+  /* Payment mode */
+  .pi-opt{min-width:0 !important;}
+
+  /* General card padding */
+  .card{padding:14px 12px;}
+
+  /* tbl-sec */
+  .tbl-sec{font-size:.75rem;padding:7px 9px 4px;}
+
+  /* note */
+  .note{font-size:.68rem;}
+}
+
+@media(max-width:480px){
+  /* COD/NonCOD buttons stack */
+  #page-settings > .wrap > div[style*="display:flex"][style*="gap:10px"]{
+    flex-direction:column !important;
+  }
+  /* Tax settings 1 col */
+  #taxSettingsBlock .sc-grid{grid-template-columns:1fr !important;}
+}
+
 .save-bar{display:flex;align-items:center;gap:10px;margin-top:16px;
   padding-top:13px;border-top:1px solid var(--bdr);}
 .saved-msg{font-size:.68rem;color:var(--grn);letter-spacing:1px;opacity:0;transition:opacity .3s;}
@@ -982,7 +1045,7 @@ Fill in details above to preview
       <div class="ctitle"><span class="dot"></span>Leopards — C.O.D Tariff Rates</div>
 
       <span class="tbl-sec">Overnight — Weight less than 3 KG</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Weight Slab</th><th>Within-City</th><th>Zone A</th><th>Zone B</th></tr></thead>
         <tbody>
           <tr><td>Up to 500 Grams (≤ 0.5 KG)</td>
@@ -998,10 +1061,10 @@ Fill in details above to preview
             <td><input type="number" id="lp_za_add" value="120" min="0"></td>
             <td><input type="number" id="lp_zb_add" value="120" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <span class="tbl-sec">Economy — 3 KG to 4.99 KG</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Weight Slab</th><th>Within-City</th><th>Zone A</th><th>Zone B</th></tr></thead>
         <tbody>
           <tr><td>Minimum up to 3 KG</td>
@@ -1013,10 +1076,10 @@ Fill in details above to preview
             <td><input type="number" id="lp_ec_za_add" value="60" min="0"></td>
             <td><input type="number" id="lp_ec_zb_add" value="60" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <span class="tbl-sec">Overland — 5 KG and above</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Weight Slab</th><th>Within-City</th><th>Zone A</th><th>Zone B</th></tr></thead>
         <tbody>
           <tr><td>Minimum up to 5 KG</td>
@@ -1028,7 +1091,7 @@ Fill in details above to preview
             <td><input type="number" id="lp_ol_za_add" value="40" min="0"></td>
             <td><input type="number" id="lp_ol_zb_add" value="40" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <div class="save-bar">
         <button class="btn btn-red" onclick="saveCourierRates('leopards')">💾 Save Rates</button>
@@ -1078,7 +1141,7 @@ Fill in details above to preview
       <div class="ctitle"><span class="dot"></span>Insta World — Tariff Rates</div>
 
       <span class="tbl-sec">Base Rate — 0 to 999 Grams (up to 1 KG)</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Slab</th><th>Within-City</th><th>Zone A</th><th>Zone B</th><th>Zone C</th></tr></thead>
         <tbody>
           <tr><td>Base Rate (0–999g / ≤1 KG)</td>
@@ -1087,10 +1150,10 @@ Fill in details above to preview
             <td><input type="number" id="iw_zb_base" value="165" min="0"></td>
             <td><input type="number" id="iw_zc_base" value="175" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <span class="tbl-sec">Each Additional KG (per started KG above 1 KG)</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Slab</th><th>Within-City</th><th>Zone A</th><th>Zone B</th><th>Zone C</th></tr></thead>
         <tbody>
           <tr><td>Each Additional KG</td>
@@ -1099,7 +1162,7 @@ Fill in details above to preview
             <td><input type="number" id="iw_zb_add" value="90" min="0"></td>
             <td><input type="number" id="iw_zc_add" value="95" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <div class="save-bar">
         <button class="btn btn-red" onclick="saveCourierRates('insta')">💾 Save Rates</button>
@@ -1150,7 +1213,7 @@ Fill in details above to preview
       <div class="ctitle"><span class="dot"></span>Call Courier — COD / Non-COD Rates</div>
 
       <span class="tbl-sec">Weight Slab: 0.01 KG – 0.5 KG (up to 500 Grams)</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Zone</th><th>Same City</th><th>Other City (Same Prov.)</th><th>Other Province</th><th>Return</th></tr></thead>
         <tbody>
           <tr><td>Base Rate (≤ 0.5 KG)</td>
@@ -1159,10 +1222,10 @@ Fill in details above to preview
             <td><input type="number" id="cc_op_s1" value="175" min="0"></td>
             <td><input type="number" id="cc_ret_s1" value="0" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <span class="tbl-sec">Weight Slab: 0.05 KG – 1 KG (501 Grams to 1 KG)</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Zone</th><th>Same City</th><th>Other City (Same Prov.)</th><th>Other Province</th><th>Return</th></tr></thead>
         <tbody>
           <tr><td>Base Rate (0.501–1 KG)</td>
@@ -1171,10 +1234,10 @@ Fill in details above to preview
             <td><input type="number" id="cc_op_s2" value="195" min="0"></td>
             <td><input type="number" id="cc_ret_s2" value="0" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <span class="tbl-sec">Each Additional 1 KG (above 1 KG — per started KG)</span>
-      <table class="rtable">
+      <div class="rtable-wrap"><table class="rtable">
         <thead><tr><th>Zone</th><th>Same City</th><th>Other City (Same Prov.)</th><th>Other Province</th><th>Return</th></tr></thead>
         <tbody>
           <tr><td>Each Additional KG</td>
@@ -1183,7 +1246,7 @@ Fill in details above to preview
             <td><input type="number" id="cc_op_add" value="195" min="0"></td>
             <td><input type="number" id="cc_ret_add" value="0" min="0"></td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <div class="save-bar">
         <button class="btn btn-red" onclick="saveCourierRates('call')">💾 Save Rates</button>
@@ -2042,122 +2105,70 @@ function useFreeVersion(){
 // ── Apply license restrictions
 function applyLicenseMode(type){
   _licType = type;
-  const isFree = (type === 'free');
+  var isFree = (type === 'free');
 
-  // Elements to lock in free mode
-  const lockIds = [
-    'fuelOn','fuelPct','gstOn','gstPct','packOn','packRate',
-    'otherOn','otherAmt','otherType','otherLabel',
-    'productAmt'
-  ];
-
-  lockIds.forEach(id => {
-    const el = document.getElementById(id);
+  // ── Calculator surcharge fields
+  var lockIds = ['fuelOn','fuelPct','gstOn','gstPct','packOn','packRate','otherOn','otherAmt','otherType','otherLabel','productAmt','discountAmt'];
+  lockIds.forEach(function(id){
+    var el = document.getElementById(id);
     if(!el) return;
-    if(isFree){
-      el.disabled = true;
-      el.style.opacity = '.4';
-      el.style.cursor = 'not-allowed';
-    } else {
-      el.disabled = false;
-      el.style.opacity = '';
-      el.style.cursor = '';
-    }
+    el.disabled = isFree;
+    el.style.opacity = isFree ? '.4' : '';
+    el.style.cursor  = isFree ? 'not-allowed' : '';
   });
 
-  // Lock buttons
-  const lockBtns = ['fuelOn','gstOn','packOn','otherOn'];
-  lockBtns.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.disabled = isFree;
-  });
+  // ── Sticky action buttons
+  var copyBtn = document.querySelector('.st-btn-copy');
+  var waBtn   = document.querySelector('.st-btn-wa');
+  if(copyBtn){ copyBtn.disabled=isFree; copyBtn.style.opacity=isFree?'.3':''; }
+  if(waBtn){   waBtn.disabled=isFree;   waBtn.style.opacity=isFree?'.3':''; }
 
-  // Lock sticky buttons
-  const copyBtn = document.querySelector('.st-btn-copy');
-  const waBtn   = document.querySelector('.st-btn-wa');
-  if(copyBtn){
-    copyBtn.disabled = isFree;
-    copyBtn.style.opacity = isFree ? '.3' : '';
-    copyBtn.title = isFree ? '🔒 Activate now' : 'Copy Details';
-  }
-  if(waBtn){
-    waBtn.disabled = isFree;
-    waBtn.style.opacity = isFree ? '.3' : '';
-    waBtn.title = isFree ? '🔒 Activate now' : 'Send via WhatsApp';
-  }
+  // ── Reset button
+  var resetBtn = document.querySelector('.btn-ghost');
+  if(resetBtn){ resetBtn.disabled=isFree; resetBtn.style.opacity=isFree?'.3':''; }
 
-  // Reset button
-  const resetBtn = document.querySelector('.btn-ghost');
-  if(resetBtn){
-    resetBtn.disabled = isFree;
-    resetBtn.style.opacity = isFree ? '.3' : '';
-  }
-
-  // Activate bar
-  const bar = document.getElementById('activateBar');
+  // ── Activate bar
+  var bar = document.getElementById('activateBar');
   if(bar) bar.style.display = isFree ? 'flex' : 'none';
   if(isFree) loadAndShowPrices();
 
-  // Settings tab — always open, but lock inputs inside
-  const settingsTab = document.querySelector('.ntab:nth-child(3)');
-  if(settingsTab){
-    settingsTab.disabled = false;
-    settingsTab.style.opacity = '';
-    settingsTab.title = '';
-    settingsTab.onclick = function(){ showPage('settings', settingsTab); };
-  }
-
-  // Lock all inputs & save buttons inside settings page
-  const settingsPage = document.getElementById('page-settings');
+  // ── Settings page: only lock SAVE buttons (btn-red)
+  // Do NOT lock inputs — user can view everything
+  var settingsPage = document.getElementById('page-settings');
   if(settingsPage){
-    const allInputs = settingsPage.querySelectorAll('input, select, textarea');
-    const allBtns   = settingsPage.querySelectorAll('button.btn-red, button.btn-ghost');
-
-    allInputs.forEach(el => {
+    var saveBtns = settingsPage.querySelectorAll('button.btn-red');
+    saveBtns.forEach(function(el){
+      // Skip courier selector and payment mode buttons
+      if(el.closest('.courier-list') || el.id==='pi-cod' || el.id==='pi-noncod') return;
       el.disabled = isFree;
       el.style.opacity = isFree ? '.4' : '';
       el.style.cursor  = isFree ? 'not-allowed' : '';
-    });
-
-    allBtns.forEach(el => {
-      // Keep courier selector clickable but save buttons locked
-      if(el.closest('.courier-list') || el.id === 'pi-cod' || el.id === 'pi-noncod'){
-        return; // skip courier selector
-      }
-      el.disabled = isFree;
-      el.style.opacity = isFree ? '.35' : '';
-      el.style.cursor  = isFree ? 'not-allowed' : '';
       if(isFree){
-        el.title = '🔒 Activate now';
-        el.onclick = (e)=>{ e.stopPropagation(); showLicenseScreen(); };
+        el.setAttribute('data-orig-onclick', el.getAttribute('onclick')||'');
+        el.onclick = function(e){ e.preventDefault(); e.stopPropagation(); showLicenseScreen(); };
       } else {
-        el.title = '';
         el.onclick = null;
       }
     });
 
-    // Show/hide free overlay banner in settings
-    let freeBanner = document.getElementById('settingsFreeBanner');
-    if(isFree && !freeBanner){
-      freeBanner = document.createElement('div');
-      freeBanner.id = 'settingsFreeBanner';
-      freeBanner.style.cssText = 'background:rgba(211,47,47,.1);border:1px solid rgba(211,47,47,.3);'+
-        'border-radius:3px;padding:10px 16px;margin-bottom:16px;font-size:.72rem;'+
-        'color:#FF5252;letter-spacing:.5px;display:flex;align-items:center;gap:10px;';
-      freeBanner.innerHTML = '<span style="font-size:1.1rem;">🔒</span>'+
-        '<span>Free version — You can view settings but cannot save. '+
-        '<button onclick="openPricingTab()" style="background:none;border:none;color:#FF5252;'+
-        'cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate now</button></span>';
-      const wrap = settingsPage.querySelector('.wrap');
-      if(wrap) wrap.insertBefore(freeBanner, wrap.firstChild);
-    } else if(!isFree && freeBanner){
-      freeBanner.remove();
+    // Free banner in settings
+    var banner = document.getElementById('settingsFreeBanner');
+    if(isFree && !banner){
+      banner = document.createElement('div');
+      banner.id = 'settingsFreeBanner';
+      banner.style.cssText = 'background:rgba(211,47,47,.1);border:1px solid rgba(211,47,47,.3);border-radius:3px;padding:10px 14px;margin-bottom:16px;font-size:.72rem;color:#FF5252;display:flex;align-items:center;gap:8px;';
+      banner.innerHTML = '<span>🔒</span><span>Free Trial — View only. <button onclick="openPricingTab()" style="background:none;border:none;color:#FF5252;cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate to save</button></span>';
+      var wrap = settingsPage.querySelector('.wrap');
+      if(wrap) wrap.insertBefore(banner, wrap.firstChild);
+    } else if(!isFree && banner){
+      banner.remove();
     }
   }
 
-  // License type badge in nav
+  // ── Nav badge
   updateNavBadge(type);
 }
+
 
 function updateNavBadge(type){
   let existing = document.getElementById('licBadge');
