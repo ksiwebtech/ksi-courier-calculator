@@ -677,86 +677,14 @@ input:focus,select:focus{border-color:var(--red);}
   </div>
 </div>
 
-<!-- FREE MODE BAR -->
-<div class="activate-bar" id="activateBar">
-  <div style="display:flex;flex-direction:column;gap:2px;">
-    <span style="font-size:.72rem;color:rgba(255,255,255,.9);letter-spacing:.5px;">
-      ⚠️ Free Version — Activate now sab features use karne ke liye
-    </span>
-    <span style="font-size:.65rem;color:rgba(255,255,255,.6);" id="barPriceText">
-      📞 Rabta karein: WhatsApp pe
-    </span>
-  </div>
-  <div style="display:flex;gap:8px;flex-shrink:0;">
-    <button onclick="openWhatsAppContact()" style="
-      background:#25D366;color:#fff;border:none;border-radius:3px;
-      padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:.7rem;
-      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;
-      white-space:nowrap;">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      WhatsApp
-    </button>
-    <button onclick="showLicenseScreen()" style="
-      background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:3px;
-      padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:.7rem;
-      font-weight:600;cursor:pointer;white-space:nowrap;">
-      🔐 Activate
-    </button>
-  </div>
+
+
+
+
 </div>
 
-<!-- STICKY TOTAL -->
-<div class="sticky-total">
-  <div class="st-col">
-    <div class="st-label">Product Price</div>
-    <div class="st-amt" id="stProduct"><span class="cur">₨</span>—</div>
-  </div>
-  <div class="st-col">
-    <div class="st-label">Delivery Charges</div>
-    <div class="st-courier" id="stCourier">—</div>
-    <div class="st-amt" id="stDelivery"><span class="cur">₨</span>0</div>
-  </div>
-  <div class="st-col st-col-total">
-    <div class="st-label">Grand Total</div>
-    <div class="st-amt big" id="rTotal"><span class="cur">₨</span>0</div>
-  </div>
-  <div class="st-actions">
-    <button class="st-btn st-btn-copy" onclick="copyDetails()" title="Copy Details">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-      <span>Copy</span>
-    </button>
-    <button class="st-btn st-btn-wa" onclick="openWaModal()" title="Send via WhatsApp">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      <span>WhatsApp</span>
-    </button>
-  </div>
-</div>
 
-<!-- WhatsApp Modal -->
-<div id="waModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
-  <div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:4px;padding:24px;max-width:340px;width:90%;position:relative;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:#F5F5F5;margin-bottom:6px;">Send via WhatsApp</div>
-    <div style="font-size:.7rem;color:#888;letter-spacing:1px;margin-bottom:18px;">Choose which WhatsApp to open:</div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button onclick="sendWA('regular')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#075E54;border:none;border-radius:3px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:.2s;" onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#075E54'">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        <div style="text-align:left;">
-          <div style="font-weight:600;font-size:.88rem;">WhatsApp</div>
-          <div style="font-size:.68rem;opacity:.8;">Regular WhatsApp</div>
-        </div>
-      </button>
-      <button onclick="sendWA('business')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#1B4332;border:none;border-radius:3px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:.2s;" onmouseover="this.style.background='#2D6A4F'" onmouseout="this.style.background='#1B4332'">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        <div style="text-align:left;">
-          <div style="font-weight:600;font-size:.88rem;">WhatsApp Business</div>
-          <div style="font-size:.68rem;opacity:.8;">Business WhatsApp</div>
-        </div>
-      </button>
-    </div>
-    <button onclick="closeWaModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
-  </div>
 </div>
-</div><!-- end page-calc -->
 
 
 <!-- ══════════════════════════════════════════
@@ -852,7 +780,7 @@ input:focus,select:focus{border-color:var(--red);}
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Select a plan first
       </button>
-      <div style="text-align:center;font-size:.72rem;color:var(--dim);margin-top:8px;" id="pricingWaNum"></div>
+
     </div>
     <div id="pricingError" style="display:none;text-align:center;padding:30px;">
       <div style="color:var(--rlight);font-size:.8rem;margin-bottom:12px;">❌ Could not load prices. Check your internet connection.</div>
@@ -2023,7 +1951,6 @@ function renderPricing(s){
   if(bn) bn.textContent = s.buy_note || '';
 
   // WA button
-  const wn = document.getElementById('pricingWaNum');
   if(wn) wn.textContent = '+' + wa;
 
   // Update global WA number
@@ -2593,5 +2520,84 @@ function updateProductDropdown(){
 // ══════════════════════════════════════════════
 initApp();
 </script>
+<!-- FREE MODE BAR -->
+<div class="activate-bar" id="activateBar">
+  <div style="display:flex;flex-direction:column;gap:2px;">
+    <span style="font-size:.72rem;color:rgba(255,255,255,.9);letter-spacing:.5px;">
+      ⚠️ Free Version — Activate now sab features use karne ke liye
+    </span>
+    <span style="font-size:.65rem;color:rgba(255,255,255,.6);" id="barPriceText">
+      📞 Rabta karein: WhatsApp pe
+    </span>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="openWhatsAppContact()" style="
+      background:#25D366;color:#fff;border:none;border-radius:3px;
+      padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:.7rem;
+      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;
+      white-space:nowrap;">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </button>
+    <button onclick="showLicenseScreen()" style="
+      background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:3px;
+      padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:.7rem;
+      font-weight:600;cursor:pointer;white-space:nowrap;">
+      🔐 Activate
+    </button>
+  </div>
+</div>
+
+<!-- STICKY TOTAL -->
+<div class="sticky-total">
+  <div class="st-col">
+    <div class="st-label">Product Price</div>
+    <div class="st-amt" id="stProduct"><span class="cur">₨</span>—</div>
+  </div>
+  <div class="st-col">
+    <div class="st-label">Delivery Charges</div>
+    <div class="st-courier" id="stCourier">—</div>
+    <div class="st-amt" id="stDelivery"><span class="cur">₨</span>0</div>
+  </div>
+  <div class="st-col st-col-total">
+    <div class="st-label">Grand Total</div>
+    <div class="st-amt big" id="rTotal"><span class="cur">₨</span>0</div>
+  </div>
+  <div class="st-actions">
+    <button class="st-btn st-btn-copy" onclick="copyDetails()" title="Copy Details">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+      <span>Copy</span>
+    </button>
+    <button class="st-btn st-btn-wa" onclick="openWaModal()" title="Send via WhatsApp">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span>WhatsApp</span>
+    </button>
+  </div>
+</div>
+
+<!-- WhatsApp Modal -->
+<div id="waModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
+  <div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:4px;padding:24px;max-width:340px;width:90%;position:relative;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:#F5F5F5;margin-bottom:6px;">Send via WhatsApp</div>
+    <div style="font-size:.7rem;color:#888;letter-spacing:1px;margin-bottom:18px;">Choose which WhatsApp to open:</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="sendWA('regular')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#075E54;border:none;border-radius:3px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:.2s;" onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#075E54'">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <div style="text-align:left;">
+          <div style="font-weight:600;font-size:.88rem;">WhatsApp</div>
+          <div style="font-size:.68rem;opacity:.8;">Regular WhatsApp</div>
+        </div>
+      </button>
+      <button onclick="sendWA('business')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#1B4332;border:none;border-radius:3px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:.2s;" onmouseover="this.style.background='#2D6A4F'" onmouseout="this.style.background='#1B4332'">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <div style="text-align:left;">
+          <div style="font-weight:600;font-size:.88rem;">WhatsApp Business</div>
+          <div style="font-size:.68rem;opacity:.8;">Business WhatsApp</div>
+        </div>
+      </button>
+    </div>
+    <button onclick="closeWaModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
+  </div>
+
 </body>
 </html>
