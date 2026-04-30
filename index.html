@@ -1732,9 +1732,12 @@ function calculate(){
     setT('bGrandTotal', fmt(grandTotal));
 
     // Sticky
-    const stProd=document.getElementById('stProduct'); if(stProd) stProd.innerHTML=`<span class="cur">₨</span>${Math.round(productAmt).toLocaleString('en-PK')}`;
+    // Product total after discount for sticky
+    var afterDiscAmt = productAmt - (discountAmt||0);
+    var stProd=document.getElementById('stProduct');
+    if(stProd) stProd.innerHTML='<span class="cur">&#8360;</span>'+Math.round(afterDiscAmt).toLocaleString('en-PK');
     const gtStr = Math.round(grandTotal).toLocaleString('en-PK');
-    const rTotEl=document.getElementById('rTotal'); if(rTotEl) rTotEl.innerHTML=`<span class="cur">₨</span>${gtStr}`;
+    const rTotEl=document.getElementById('rTotal'); if(rTotEl) rTotEl.innerHTML='<span class="cur">&#8360;</span>'+gtStr;
   } else {
     // No product — just show delivery total
     const stP2=document.getElementById('stProduct'); if(stP2) stP2.innerHTML=`<span class="cur">₨</span>—`;
@@ -1817,6 +1820,14 @@ function showPage(p,btn){
   var pg = document.getElementById('page-'+p);
   if(pg){ pg.style.display='block'; pg.classList.add('active'); }
   if(btn) btn.classList.add('active');
+
+  // Sticky total + activate bar: only on calculator page
+  var sticky = document.querySelector('.sticky-total');
+  var actBar = document.getElementById('activateBar');
+  var isCalc = (p==='calc');
+  if(sticky) sticky.style.display = isCalc ? 'flex' : 'none';
+  if(actBar && actBar.style.display!=='none') actBar.style.display = isCalc ? 'flex' : 'none';
+
   // Page-specific actions
   if(p==='products'){
     setTimeout(function(){
@@ -1875,42 +1886,77 @@ function resetCalc(){
 function pk(n){ return '₨'+Math.round(n).toLocaleString('en-PK'); }
 
 function buildSummaryText(){
-  const L = _last;
+  var L = _last;
   if(!L.courierName) return 'No calculation yet.';
-  const zNames={wc:'Within City',za:'Zone A',zb:'Zone B',zc:'Zone C',sp:'Other City (Same Prov.)',op:'Other Province',ret:'Return'};
-  let lines = [];
-  lines.push('📦 KSI COURIER CALCULATOR');
-  lines.push('─────────────────────────');
-  lines.push(`Courier  : ${L.courierName}`);
-  lines.push(`Zone     : ${zNames[L.zone]||L.zone}`);
-  lines.push(`Weight   : ${L.weight} KG`);
-  lines.push('');
-  lines.push('── Delivery Charges ──');
-  lines.push(`Base Rate          : ${pk(L.base)}`);
-  if(L.fuelAmt>0) lines.push(`Fuel Surcharge (${L.fuelPct}%): ${pk(L.fuelAmt)}`);
-  if(L.gstAmt>0)  lines.push(`GST (${L.gstPct}%)           : ${pk(L.gstAmt)}`);
-  if(L.packAmt>0) lines.push(`Packaging (${L.billKg}KG×${pk(L.packRate).replace('₨','')}) : ${pk(L.packAmt)}`);
-  if(L.otherCharge>0) lines.push(`${L.otherLbl}             : ${pk(L.otherCharge)}`);
-  lines.push(`Total Delivery     : ${pk(L.deliveryTotal)}`);
+  var Z = {wc:'Within City',za:'Zone A',zb:'Zone B',zc:'Zone C',sp:'Other City (Same Prov.)',op:'Other Province',ret:'Return'};
+  var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+  var co = lsGet('ksi_company',{});
+  var lines = [];
 
-  if(L.productAmt>0){
+  // ── Company Header
+  if(co.name)    lines.push(co.name.toUpperCase());
+  if(co.tagline) lines.push(co.tagline);
+  if(co.phone)   lines.push('Tel: ' + co.phone);
+  if(co.email)   lines.push('Email: ' + co.email);
+  if(co.city)    lines.push(co.city);
+  if(co.website) lines.push(co.website);
+  lines.push(D);
+  lines.push('Date: ' + new Date().toLocaleDateString('en-GB'));
+  lines.push('');
+
+  if(L.productAmt > 0){
+    // ── Invoice with product
+    lines.push('QUOTATION / INVOICE');
+    lines.push(D);
     lines.push('');
-    lines.push('── Order Total ──');
-    lines.push(`Product Price      : ${pk(L.productAmt)}`);
-    lines.push(`Delivery Charges   : ${pk(L.deliveryTotal)}`);
-    const plusD = L.productAmt + L.deliveryTotal;
-    lines.push(`Subtotal           : ${pk(plusD)}`);
-    if(L.isCOD){
-      const whtA  = plusD*(L.whtPct/100);
-      const staxA = plusD*(L.staxPct/100);
-      lines.push(`WHT (${L.whtPct}%)           : ${pk(whtA)}`);
-      lines.push(`Sales Tax (${L.staxPct}%)     : ${pk(staxA)}`);
-      lines.push(`GRAND TOTAL        : ${pk(plusD+whtA+staxA)}`);
+    lines.push('Order Details:');
+
+    // Product line
+    var pname = L.productName || 'Product';
+    if(L.productQty > 1){
+      lines.push(pname + '  ' + pk(L.unitPrice) + ' x ' + L.productQty + ' = ' + pk(L.productAmt));
     } else {
-      lines.push(`GRAND TOTAL        : ${pk(plusD)}`);
+      lines.push(pname + '  :  ' + pk(L.productAmt));
     }
+    lines.push('Delivery Charges  :  ' + pk(L.deliveryTotal));
+    lines.push('Courier           :  ' + L.courierName);
+    lines.push('Zone              :  ' + (Z[L.zone]||L.zone));
+    lines.push('Weight            :  ' + L.weight + ' KG');
+
+    var plusD = L.productAmt + L.deliveryTotal;
+
+    if(L.discountAmt > 0){
+      var discLbl = (L.discountType==='pct') ? 'Discount ('+L.discountVal+'%)' : 'Discount';
+      lines.push(discLbl + '          :  -' + pk(L.discountAmt));
+    }
+    lines.push(D);
+
+    var afterDisc = plusD - (L.discountAmt||0);
+
+    if(L.isCOD){
+      var whtA  = afterDisc*(L.whtPct/100);
+      var staxA = afterDisc*(L.staxPct/100);
+      lines.push('WHT (' + L.whtPct + '%)             :  ' + pk(whtA));
+      lines.push('Sales Tax (' + L.staxPct + '%)        :  ' + pk(staxA));
+      lines.push(D);
+      lines.push('GRAND TOTAL       :  ' + pk(afterDisc + whtA + staxA));
+    } else {
+      lines.push('GRAND TOTAL       :  ' + pk(afterDisc));
+    }
+    lines.push(D);
+
+  } else {
+    // ── Delivery only
+    lines.push('DELIVERY CHARGES');
+    lines.push(D);
+    lines.push('Courier  :  ' + L.courierName);
+    lines.push('Zone     :  ' + (Z[L.zone]||L.zone));
+    lines.push('Weight   :  ' + L.weight + ' KG');
+    lines.push('');
+    lines.push('Total    :  ' + pk(L.deliveryTotal));
+    lines.push(D);
   }
-  lines.push('─────────────────────────');
+
   return lines.join('\n');
 }
 
@@ -2767,7 +2813,7 @@ initApp();
 <!-- STICKY TOTAL -->
 <div class="sticky-total">
   <div class="st-col">
-    <div class="st-label">Product Price</div>
+    <div class="st-label">Product Total</div>
     <div class="st-amt" id="stProduct"><span class="cur">₨</span>—</div>
   </div>
   <div class="st-col">
