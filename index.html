@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KSI Courier Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -12,7 +12,7 @@
   --blk:#0A0A0A;--dark:#111;--card:#1A1A1A;
   --bdr:#2A2A2A;--mut:#555;--txt:#F5F5F5;--dim:#888;
   --grn:#4CAF50;--ylw:#FFC107;--blue:#1565C0;
-  --nav:54px;--sticky:90px;
+  --nav:54px;--sticky:90px;--sticky-mob:120px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--blk);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;}
@@ -39,7 +39,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* ── PAGES ── */
 .page{display:none;}.page.active{display:block;}
-.wrap{max-width:1040px;margin:0 auto;padding:24px 18px calc(var(--sticky) + 32px);position:relative;z-index:1;}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 18px calc(var(--sticky) + 70px);position:relative;z-index:1;}
 .pg-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:4px;margin-bottom:3px;}
 .pg-sub{font-size:.68rem;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
 
@@ -182,6 +182,132 @@ input:focus,select:focus{border-color:var(--red);}
 /* surcharge section in courier settings */
 .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
 @media(max-width:500px){.sc-grid{grid-template-columns:1fr;}}
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — max 768px
+══════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* NAV */
+  .nav{padding:0 12px;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .brand{margin-right:12px;}
+  .brand-text h1{font-size:1rem;}
+  .brand-text span{display:none;}
+  .ntab{padding:0 10px;font-size:.62rem;letter-spacing:1px;}
+  #licBadge{font-size:.55rem;padding:2px 7px;}
+
+  /* WRAP */
+  .wrap{padding:16px 12px calc(var(--sticky-mob) + 80px);}
+
+  /* PAGE TITLE */
+  .pg-title{font-size:1.2rem;letter-spacing:2px;}
+  .pg-sub{font-size:.62rem;margin-bottom:14px;}
+
+  /* CARDS */
+  .card{padding:14px;}
+  .ctitle{font-size:.8rem;letter-spacing:2px;margin-bottom:12px;}
+
+  /* FORMULA BOX */
+  .fbox p{font-size:.65rem;line-height:1.75;}
+
+  /* STICKY TOTAL — mobile: 2 rows */
+  .sticky-total{
+    height:auto !important;
+    min-height:var(--sticky-mob);
+    flex-wrap:wrap;
+    padding:10px 14px;
+    gap:6px;
+  }
+  .st-col{
+    flex:1;
+    min-width:80px;
+    padding-right:6px;
+    border-right:1px solid rgba(255,255,255,.15);
+  }
+  .st-col:last-child{border-right:none;}
+  .st-col-total{flex:1.2;}
+  .st-label{font-size:.48rem;letter-spacing:1px;}
+  .st-courier{font-size:.52rem;}
+  .st-amt{font-size:1.1rem !important;}
+  .st-amt.big{font-size:1.3rem !important;}
+  .st-amt .cur{font-size:.7rem;}
+
+  /* STICKY ACTIONS — full width on mobile */
+  .st-actions{
+    flex-direction:row;
+    width:100%;
+    border-top:1px solid rgba(255,255,255,.15);
+    padding-top:8px;
+    margin-top:2px;
+    gap:8px;
+  }
+  .st-btn{flex:1;justify-content:center;padding:7px 10px;font-size:.65rem;}
+
+  /* ACTIVATE BAR — mobile stack */
+  .activate-bar{
+    flex-direction:column;
+    align-items:flex-start;
+    padding:10px 14px;
+    gap:8px;
+    bottom:var(--sticky-mob) !important;
+  }
+  .activate-bar>div:first-child{width:100%;}
+  .activate-bar>div:last-child{width:100%;justify-content:flex-end;}
+
+  /* RESULT ROWS */
+  .rrow{padding:8px 11px;}
+  .rl{font-size:.62rem;}
+  .rv{font-size:.8rem;}
+
+  /* SETTINGS INNER TABS */
+  .stab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+  .stab{white-space:nowrap;padding:8px 12px;font-size:.62rem;letter-spacing:1px;}
+
+  /* RATE TABLE — scroll on mobile */
+  .rtable{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .rtable th,.rtable td{white-space:nowrap;font-size:.65rem;padding:5px 7px;}
+
+  /* LICENSE SCREEN */
+  .lic-box{padding:24px 18px;}
+  .lic-title{font-size:1.5rem;}
+  .lic-sub{font-size:.62rem;margin-bottom:20px;}
+  .lic-field input{font-size:.9rem;padding:11px 12px;}
+  .lic-btn{font-size:1rem;padding:12px;}
+
+  /* COURIER LIST */
+  .ci{padding:10px 12px;gap:10px;}
+  .ci-chip{width:36px;height:30px;}
+  .ci-chip img{width:36px;height:30px;}
+  .ci-name{font-size:.85rem;letter-spacing:1.5px;}
+  .ci-desc{font-size:.6rem;}
+
+  /* GRID 2 already 1 col at 700px */
+
+  /* SAVE BAR */
+  .save-bar{flex-wrap:wrap;gap:8px;}
+  .save-bar .btn{font-size:.65rem;padding:7px 12px;}
+
+  /* FORMULA BOX */
+  .fbox{padding:10px 12px;}
+
+  /* SECTION TITLE */
+  .sectitle{font-size:.55rem;}
+
+  /* SERVICE BADGE */
+  .svc-badge{font-size:.62rem;padding:2px 9px;}
+
+  /* PRICING GRID */
+  .sc-grid{grid-template-columns:1fr !important;}
+}
+
+/* Extra small — 400px */
+@media(max-width:400px){
+  .ntab{padding:0 8px;font-size:.58rem;}
+  .brand-text h1{font-size:.9rem;letter-spacing:2px;}
+  .st-amt{font-size:1rem !important;}
+  .st-amt.big{font-size:1.2rem !important;}
+  .wrap{padding:12px 10px calc(var(--sticky-mob) + 80px);}
+}
 
 .save-bar{display:flex;align-items:center;gap:10px;margin-top:16px;
   padding-top:13px;border-top:1px solid var(--bdr);}
