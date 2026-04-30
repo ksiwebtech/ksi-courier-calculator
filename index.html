@@ -1626,11 +1626,12 @@ function updateNavBadge(type){
     existing.style.cssText = 'margin-left:auto;padding:3px 10px;border-radius:10px;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;';
     document.querySelector('.nav').appendChild(existing);
   }
-  if(type === 'free'){
+  const t = (type||'').toLowerCase();
+  if(t === 'free'){
     existing.textContent = 'FREE';
     existing.style.background = 'rgba(255,255,255,.08)';
     existing.style.color = '#888';
-  } else if(type === '1year' || type === '1 Year'){
+  } else if(t === '1year' || t.includes('year') || t.includes('1')){
     existing.textContent = '1 YEAR ✓';
     existing.style.background = 'rgba(211,47,47,.2)';
     existing.style.color = '#FF5252';
@@ -1706,7 +1707,16 @@ async function activateLicense(){
 
     if(data.success){
       // Save license locally
-      const licType = (data.type||'').toLowerCase().includes('year') ? '1year' : 'lifetime';
+      // Type from Google Sheet Column I
+      const rawType = (data.type||'').toLowerCase().trim();
+      let licType = 'lifetime'; // default
+      if(rawType.includes('1') || rawType.includes('one') || rawType.includes('year')){
+        licType = '1year';
+      } else if(rawType.includes('lifetime') || rawType.includes('life')){
+        licType = 'lifetime';
+      } else if(rawType.includes('standard')){
+        licType = 'lifetime'; // standard = lifetime
+      }
       lsSet('ksi_license', {
         key: formattedKey,
         client: data.client || '',
@@ -1762,7 +1772,8 @@ async function initApp(){
   if(hasLic){
     // Already activated — verify with server silently
     const savedLic = lsGet('ksi_license', null);
-    const savedType = savedLic ? (savedLic.type || 'free') : 'free';
+    const rawSavedType = savedLic ? (savedLic.type || 'free') : 'free';
+    const savedType = rawSavedType; // already normalized on save
     document.getElementById('licenseScreen').style.display = 'none';
     applyLicenseMode(savedType);
 
