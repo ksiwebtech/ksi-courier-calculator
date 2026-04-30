@@ -1605,13 +1605,61 @@ function applyLicenseMode(type){
   const bar = document.getElementById('activateBar');
   if(bar) bar.style.display = isFree ? 'flex' : 'none';
 
-  // Settings tab — lock in free mode
+  // Settings tab — always open, but lock inputs inside
   const settingsTab = document.querySelector('.ntab:nth-child(3)');
   if(settingsTab){
-    settingsTab.disabled = isFree;
-    settingsTab.style.opacity = isFree ? '.3' : '';
-    settingsTab.title = isFree ? '🔒 Activate karein' : 'Settings';
-    settingsTab.onclick = isFree ? ()=>showLicenseScreen() : ()=>showPage('settings', settingsTab);
+    settingsTab.disabled = false;
+    settingsTab.style.opacity = '';
+    settingsTab.title = '';
+    settingsTab.onclick = function(){ showPage('settings', settingsTab); };
+  }
+
+  // Lock all inputs & save buttons inside settings page
+  const settingsPage = document.getElementById('page-settings');
+  if(settingsPage){
+    const allInputs = settingsPage.querySelectorAll('input, select, textarea');
+    const allBtns   = settingsPage.querySelectorAll('button.btn-red, button.btn-ghost');
+
+    allInputs.forEach(el => {
+      el.disabled = isFree;
+      el.style.opacity = isFree ? '.4' : '';
+      el.style.cursor  = isFree ? 'not-allowed' : '';
+    });
+
+    allBtns.forEach(el => {
+      // Keep courier selector clickable but save buttons locked
+      if(el.closest('.courier-list') || el.id === 'pi-cod' || el.id === 'pi-noncod'){
+        return; // skip courier selector
+      }
+      el.disabled = isFree;
+      el.style.opacity = isFree ? '.35' : '';
+      el.style.cursor  = isFree ? 'not-allowed' : '';
+      if(isFree){
+        el.title = '🔒 Activate karein';
+        el.onclick = (e)=>{ e.stopPropagation(); showLicenseScreen(); };
+      } else {
+        el.title = '';
+        el.onclick = null;
+      }
+    });
+
+    // Show/hide free overlay banner in settings
+    let freeBanner = document.getElementById('settingsFreeBanner');
+    if(isFree && !freeBanner){
+      freeBanner = document.createElement('div');
+      freeBanner.id = 'settingsFreeBanner';
+      freeBanner.style.cssText = 'background:rgba(211,47,47,.1);border:1px solid rgba(211,47,47,.3);'+
+        'border-radius:3px;padding:10px 16px;margin-bottom:16px;font-size:.72rem;'+
+        'color:#FF5252;letter-spacing:.5px;display:flex;align-items:center;gap:10px;';
+      freeBanner.innerHTML = '<span style="font-size:1.1rem;">🔒</span>'+
+        '<span>Free version — Settings dekhein magar save nahi ho sakti. '+
+        '<button onclick="showLicenseScreen()" style="background:none;border:none;color:#FF5252;'+
+        'cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate karein</button></span>';
+      const wrap = settingsPage.querySelector('.wrap');
+      if(wrap) wrap.insertBefore(freeBanner, wrap.firstChild);
+    } else if(!isFree && freeBanner){
+      freeBanner.remove();
+    }
   }
 
   // License type badge in nav
@@ -1749,7 +1797,10 @@ async function activateLicense(){
 
 function checkExistingLicense(){
   const lic = lsGet('ksi_license', null);
-  if(!lic || !lic.key) return false;
+  if(!lic) return false;
+  // Free mode — key empty but type='free' — allow
+  if(lic.type === 'free') return true;
+  if(!lic.key) return false;
 
   // Expiry check (client side)
   if(lic.expiry && lic.expiry !== 'Lifetime'){
@@ -1777,7 +1828,11 @@ async function initApp(){
     document.getElementById('licenseScreen').style.display = 'none';
     applyLicenseMode(savedType);
 
-    // Background verify
+    // Background verify (skip for free mode)
+    const licForVerify = lsGet('ksi_license', null);
+    if(licForVerify && licForVerify.type === 'free'){
+      loadAll(); calculate(); return;
+    }
     try {
       const lic = lsGet('ksi_license', null);
       const machine = getMachineId();
@@ -1795,9 +1850,17 @@ async function initApp(){
         applyLicenseMode('free');
         document.getElementById('licenseScreen').style.display = 'flex';
       } else {
-        // Re-apply correct type
+        // Server ne sahi type return kiya — update local storage
+        const serverType = (data.type||'').toLowerCase();
+        let correctType = 'lifetime';
+        if(serverType.includes('1') || serverType.includes('year')) correctType = '1year';
+        // Update saved license with correct type
         const lt = lsGet('ksi_license',null);
-        if(lt) applyLicenseMode(lt.type||'free');
+        if(lt){
+          lt.type = correctType;
+          lsSet('ksi_license', lt);
+          applyLicenseMode(correctType);
+        }
       }
     } catch(e){
       // Server unreachable — allow offline use
@@ -1807,16 +1870,7 @@ async function initApp(){
     loadAll();
     calculate();
   } else {
-    const savedLic2 = lsGet('ksi_license', null);
-    if(savedLic2 && savedLic2.type === 'free'){
-      // Free mode — show app but locked
-      document.getElementById('licenseScreen').style.display = 'none';
-      applyLicenseMode('free');
-      loadAll();
-      calculate();
-    } else {
-      document.getElementById('licenseScreen').style.display = 'flex';
-    }
+    document.getElementById('licenseScreen').style.display = 'flex';
   }
 }
 
