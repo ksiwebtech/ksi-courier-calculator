@@ -208,6 +208,23 @@ input:focus,select:focus{border-color:var(--red);}
 .note{font-size:.68rem;color:var(--dim);line-height:1.6;margin-bottom:14px;
   padding:9px 12px;background:rgba(255,255,255,.02);border-left:2px solid var(--red);}
 
+/* ── FREE MODE ── */
+.free-overlay{position:absolute;inset:0;z-index:50;cursor:not-allowed;border-radius:2px;}
+.free-badge{position:fixed;bottom:calc(var(--sticky) + 8px);left:50%;transform:translateX(-50%);
+  z-index:500;background:rgba(10,10,10,.95);border:1px solid #D32F2F;border-radius:20px;
+  padding:6px 16px;font-size:.68rem;color:#FF5252;letter-spacing:1px;white-space:nowrap;
+  display:none;}
+.locked{position:relative;pointer-events:none;opacity:.5;}
+.locked::after{content:'🔒';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);font-size:1.2rem;z-index:10;}
+.activate-bar{display:none;position:fixed;bottom:calc(var(--sticky));left:0;right:0;
+  z-index:450;background:rgba(211,47,47,.95);padding:8px 20px;
+  display:none;align-items:center;justify-content:space-between;}
+.activate-bar span{font-size:.72rem;color:rgba(255,255,255,.9);letter-spacing:1px;}
+.activate-bar button{background:white;color:#D32F2F;border:none;border-radius:3px;
+  padding:5px 14px;font-family:'Bebas Neue',sans-serif;font-size:.85rem;
+  letter-spacing:2px;cursor:pointer;}
+
 /* ── LICENSE SCREEN ── */
 #licenseScreen{position:fixed;inset:0;z-index:9999;background:#0A0A0A;
   display:flex;align-items:center;justify-content:center;flex-direction:column;}
@@ -261,6 +278,22 @@ input:focus,select:focus{border-color:var(--red);}
     </div>
     <div class="lic-sub">Courier Calculator — License Activation</div>
 
+    <!-- License Plans -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;">
+      <div style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid #2A2A2A;border-radius:3px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:#888;">FREE</div>
+        <div style="font-size:.62rem;color:#555;margin-top:3px;">Limited Access</div>
+      </div>
+      <div style="flex:1;padding:10px;background:rgba(211,47,47,.08);border:1px solid rgba(211,47,47,.3);border-radius:3px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:#FF5252;">1 YEAR</div>
+        <div style="font-size:.62rem;color:#888;margin-top:3px;">Full Access</div>
+      </div>
+      <div style="flex:1;padding:10px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);border-radius:3px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:#81C784;">LIFETIME</div>
+        <div style="font-size:.62rem;color:#888;margin-top:3px;">Full Access</div>
+      </div>
+    </div>
+
     <div class="lic-field">
       <label>License Key</label>
       <input type="text" id="licKeyInput" placeholder="KSI-XXXX-XXXX-XXXX" 
@@ -273,6 +306,13 @@ input:focus,select:focus{border-color:var(--red);}
 
     <div class="lic-msg" id="licMsg"></div>
 
+    <div style="margin-top:12px;text-align:center;">
+      <button onclick="useFreeVersion()" style="background:none;border:none;color:#555;
+        font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;
+        text-decoration:underline;letter-spacing:.5px;">
+        Abhi activate nahi karna — Free version use karein
+      </button>
+    </div>
     <div class="lic-info">
       License key aapko KSI se WhatsApp/Email pe mili hogi<br>
       Madad ke liye: <strong style="color:#D32F2F">ksiwebtech@gmail.com</strong>
@@ -487,6 +527,12 @@ input:focus,select:focus{border-color:var(--red);}
       </div>
     </div>
   </div>
+</div>
+
+<!-- FREE MODE BAR -->
+<div class="activate-bar" id="activateBar">
+  <span>⚠️ Free Version — Activate karein sab features use karne ke liye</span>
+  <button onclick="showLicenseScreen()">🔐 Activate Now</button>
 </div>
 
 <!-- STICKY TOTAL -->
@@ -1482,6 +1528,125 @@ function sendWA(type){
 // ═══════════════════════════════════════════════════════════
 //  LICENSE SYSTEM
 // ═══════════════════════════════════════════════════════════
+
+// ── License state
+let _licType = 'free'; // 'free' | '1year' | 'lifetime'
+
+// ── Show/Hide license screen
+function showLicenseScreen(){
+  document.getElementById('licenseScreen').style.display = 'flex';
+}
+
+// ── Free version mode
+function useFreeVersion(){
+  _licType = 'free';
+  lsSet('ksi_license', {key:'', type:'free'});
+  document.getElementById('licenseScreen').style.display = 'none';
+  applyLicenseMode('free');
+  loadAll();
+  calculate();
+}
+
+// ── Apply license restrictions
+function applyLicenseMode(type){
+  _licType = type;
+  const isFree = (type === 'free');
+
+  // Elements to lock in free mode
+  const lockIds = [
+    'fuelOn','fuelPct','gstOn','gstPct','packOn','packRate',
+    'otherOn','otherAmt','otherType','otherLabel',
+    'productAmt'
+  ];
+
+  lockIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(isFree){
+      el.disabled = true;
+      el.style.opacity = '.4';
+      el.style.cursor = 'not-allowed';
+    } else {
+      el.disabled = false;
+      el.style.opacity = '';
+      el.style.cursor = '';
+    }
+  });
+
+  // Lock buttons
+  const lockBtns = ['fuelOn','gstOn','packOn','otherOn'];
+  lockBtns.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.disabled = isFree;
+  });
+
+  // Lock sticky buttons
+  const copyBtn = document.querySelector('.st-btn-copy');
+  const waBtn   = document.querySelector('.st-btn-wa');
+  if(copyBtn){
+    copyBtn.disabled = isFree;
+    copyBtn.style.opacity = isFree ? '.3' : '';
+    copyBtn.title = isFree ? '🔒 Activate karein' : 'Copy Details';
+  }
+  if(waBtn){
+    waBtn.disabled = isFree;
+    waBtn.style.opacity = isFree ? '.3' : '';
+    waBtn.title = isFree ? '🔒 Activate karein' : 'Send via WhatsApp';
+  }
+
+  // Reset button
+  const resetBtn = document.querySelector('.btn-ghost');
+  if(resetBtn){
+    resetBtn.disabled = isFree;
+    resetBtn.style.opacity = isFree ? '.3' : '';
+  }
+
+  // Activate bar
+  const bar = document.getElementById('activateBar');
+  if(bar) bar.style.display = isFree ? 'flex' : 'none';
+
+  // Settings tab — lock in free mode
+  const settingsTab = document.querySelector('.ntab:nth-child(3)');
+  if(settingsTab){
+    settingsTab.disabled = isFree;
+    settingsTab.style.opacity = isFree ? '.3' : '';
+    settingsTab.title = isFree ? '🔒 Activate karein' : 'Settings';
+    settingsTab.onclick = isFree ? ()=>showLicenseScreen() : ()=>showPage('settings', settingsTab);
+  }
+
+  // License type badge in nav
+  updateNavBadge(type);
+}
+
+function updateNavBadge(type){
+  let existing = document.getElementById('licBadge');
+  if(!existing){
+    existing = document.createElement('div');
+    existing.id = 'licBadge';
+    existing.style.cssText = 'margin-left:auto;padding:3px 10px;border-radius:10px;font-size:.6rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;';
+    document.querySelector('.nav').appendChild(existing);
+  }
+  if(type === 'free'){
+    existing.textContent = 'FREE';
+    existing.style.background = 'rgba(255,255,255,.08)';
+    existing.style.color = '#888';
+  } else if(type === '1year' || type === '1 Year'){
+    existing.textContent = '1 YEAR ✓';
+    existing.style.background = 'rgba(211,47,47,.2)';
+    existing.style.color = '#FF5252';
+  } else {
+    existing.textContent = 'LIFETIME ✓';
+    existing.style.background = 'rgba(76,175,80,.2)';
+    existing.style.color = '#81C784';
+  }
+}
+
+// ── Override calculate for free mode — still shows base calc
+const _origCalculate = null;
+
+// ═══════════════════════════════════════════════════════════
+//  LICENSE SYSTEM
+// ═══════════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWdqJc7bTjVIt2L4ccpRKLyuRwTUVEGdxhdN2roCUrYjY3qYpLtkwoQBQzdfO6pUIt/exec';
 const SECRET_KEY = 'KSI2024SECRET';
 
@@ -1541,18 +1706,21 @@ async function activateLicense(){
 
     if(data.success){
       // Save license locally
+      const licType = (data.type||'').toLowerCase().includes('year') ? '1year' : 'lifetime';
       lsSet('ksi_license', {
         key: formattedKey,
         client: data.client || '',
-        type: data.type || 'Standard',
+        type: licType,
         expiry: data.expiry || 'Lifetime',
         activatedAt: new Date().toISOString()
       });
 
-      showLicMsg('✅ ' + data.message, 'success');
+      const typeLabel = licType === '1year' ? '1 Year' : 'Lifetime';
+      showLicMsg('✅ ' + data.message + ' (' + typeLabel + ')', 'success');
 
       setTimeout(()=>{
         document.getElementById('licenseScreen').style.display = 'none';
+        applyLicenseMode(licType);
         loadAll();
         calculate();
       }, 1500);
@@ -1593,7 +1761,10 @@ async function initApp(){
 
   if(hasLic){
     // Already activated — verify with server silently
+    const savedLic = lsGet('ksi_license', null);
+    const savedType = savedLic ? (savedLic.type || 'free') : 'free';
     document.getElementById('licenseScreen').style.display = 'none';
+    applyLicenseMode(savedType);
 
     // Background verify
     try {
@@ -1610,7 +1781,12 @@ async function initApp(){
       if(!data.success){
         // Invalid — show license screen
         localStorage.removeItem('ksi_license');
+        applyLicenseMode('free');
         document.getElementById('licenseScreen').style.display = 'flex';
+      } else {
+        // Re-apply correct type
+        const lt = lsGet('ksi_license',null);
+        if(lt) applyLicenseMode(lt.type||'free');
       }
     } catch(e){
       // Server unreachable — allow offline use
@@ -1620,7 +1796,16 @@ async function initApp(){
     loadAll();
     calculate();
   } else {
-    document.getElementById('licenseScreen').style.display = 'flex';
+    const savedLic2 = lsGet('ksi_license', null);
+    if(savedLic2 && savedLic2.type === 'free'){
+      // Free mode — show app but locked
+      document.getElementById('licenseScreen').style.display = 'none';
+      applyLicenseMode('free');
+      loadAll();
+      calculate();
+    } else {
+      document.getElementById('licenseScreen').style.display = 'flex';
+    }
   }
 }
 
