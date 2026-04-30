@@ -788,7 +788,7 @@ input:focus,select:focus{border-color:var(--red);}
   </div>
 
   <!-- Products List -->
-  <div class="card">
+  <div class="card mb14">
     <div class="ctitle"><span class="dot"></span>Saved Products</div>
     <div style="margin-bottom:12px;display:flex;gap:8px;">
       <input type="text" id="prodSearch" placeholder="Search products..." oninput="renderProducts()" style="flex:1;">
@@ -798,6 +798,44 @@ input:focus,select:focus{border-color:var(--red);}
         No products yet — add one above
       </div>
     </div>
+  </div>
+
+  <!-- Backup & Restore -->
+  <div class="card">
+    <div class="ctitle"><span class="dot"></span>Backup &amp; Restore</div>
+    <p class="note">Export your products &amp; settings to a file. Save it to your phone, Google Drive, or WhatsApp yourself. Import anytime to restore.</p>
+
+    <div class="grid2" style="gap:12px;">
+      <!-- Export -->
+      <div style="background:var(--dark);border:1px solid var(--bdr);border-radius:3px;padding:16px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">📥</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:var(--txt);margin-bottom:6px;">Export Backup</div>
+        <div style="font-size:.68rem;color:var(--dim);margin-bottom:12px;line-height:1.5;">Download all your products &amp; settings as a JSON file</div>
+        <button onclick="exportBackup()" class="btn btn-red" style="width:100%;justify-content:center;">⬇ Download Backup</button>
+      </div>
+
+      <!-- Import -->
+      <div style="background:var(--dark);border:1px solid var(--bdr);border-radius:3px;padding:16px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:8px;">📤</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;color:var(--txt);margin-bottom:6px;">Import Backup</div>
+        <div style="font-size:.68rem;color:var(--dim);margin-bottom:12px;line-height:1.5;">Restore from a previously exported backup file</div>
+        <label style="display:block;background:var(--red);color:white;border-radius:2px;padding:8px 14px;cursor:pointer;font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;text-align:center;">
+          ⬆ Choose Backup File
+          <input type="file" id="importFile" accept=".json" onchange="importBackup(this)" style="display:none;">
+        </label>
+      </div>
+    </div>
+
+    <!-- Share via WhatsApp -->
+    <div style="margin-top:12px;padding:12px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:3px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:.72rem;color:#81C784;font-weight:600;margin-bottom:2px;">Save to Google Drive / Share</div>
+        <div style="font-size:.66rem;color:var(--dim);">Export the file, then upload to Google Drive or share anywhere</div>
+      </div>
+      <button onclick="exportBackup()" style="background:#25D366;border:none;border-radius:3px;color:white;padding:7px 14px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">📥 Export Now</button>
+    </div>
+
+    <div id="backupMsg" style="display:none;margin-top:10px;padding:8px 12px;border-radius:3px;font-size:.72rem;"></div>
   </div>
 </div>
 </div>
@@ -1305,7 +1343,18 @@ let _last = {};
 // ══════════════════════════════════════════════
 //  STORAGE
 // ══════════════════════════════════════════════
-function lsGet(k,def){ try{const v=localStorage.getItem(k);return v?{...def,...JSON.parse(v)}:def;}catch(e){return def;} }
+function lsGet(k,def){
+  try{
+    var v=localStorage.getItem(k);
+    if(!v) return def;
+    var parsed=JSON.parse(v);
+    // If default is array, return parsed directly (don't spread)
+    if(Array.isArray(def)) return Array.isArray(parsed)?parsed:def;
+    // If object, merge with default
+    if(typeof def==='object' && def!==null) return Object.assign({},def,parsed);
+    return parsed;
+  }catch(e){return def;}
+}
 function lsSet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
 function numId(id){ return parseFloat(document.getElementById(id)?.value)||0; }
 function setId(id,v){ const e=document.getElementById(id);if(e)e.value=v; }
@@ -2376,6 +2425,94 @@ async function initApp(){
   } else {
     document.getElementById('licenseScreen').style.display = 'flex';
   }
+}
+
+// ══════════════════════════════════════════════
+//  BACKUP & RESTORE
+// ══════════════════════════════════════════════
+function exportBackup(){
+  var backup = {
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    products:   lsGet('ksi_products',[]),
+    company:    lsGet('ksi_company',{}),
+    leopards_sc: lsGet('ksi_lp_sc',{}),
+    leopards_rt: lsGet('ksi_lp_rt',{}),
+    insta_sc:    lsGet('ksi_iw_sc',{}),
+    insta_rt:    lsGet('ksi_iw_rt',{}),
+    call_sc:     lsGet('ksi_cc_sc',{}),
+    call_rt:     lsGet('ksi_cc_rt',{}),
+    general:     lsGet('ksi_general',{}),
+    courier:     lsGet('ksi_courier',{}),
+    paymode:     lsGet('ksi_paymode',{}),
+  };
+
+  var json = JSON.stringify(backup, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url  = URL.createObjectURL(blob);
+  var date = new Date().toISOString().split('T')[0];
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'KSI_Backup_' + date + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showBackupMsg('✅ Backup downloaded! Save it to Google Drive or WhatsApp yourself for safekeeping.', 'success');
+}
+
+function importBackup(input){
+  var file = input.files[0];
+  if(!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var data = JSON.parse(e.target.result);
+      if(!data.version){ showBackupMsg('❌ Invalid backup file.','error'); return; }
+
+      // Restore all data
+      if(data.products   && Array.isArray(data.products))   lsSet('ksi_products',  data.products);
+      if(data.company)    lsSet('ksi_company',   data.company);
+      if(data.leopards_sc)lsSet('ksi_lp_sc',     data.leopards_sc);
+      if(data.leopards_rt)lsSet('ksi_lp_rt',     data.leopards_rt);
+      if(data.insta_sc)   lsSet('ksi_iw_sc',     data.insta_sc);
+      if(data.insta_rt)   lsSet('ksi_iw_rt',     data.insta_rt);
+      if(data.call_sc)    lsSet('ksi_cc_sc',      data.call_sc);
+      if(data.call_rt)    lsSet('ksi_cc_rt',      data.call_rt);
+      if(data.general)    lsSet('ksi_general',    data.general);
+      if(data.courier)    lsSet('ksi_courier',    data.courier);
+      if(data.paymode)    lsSet('ksi_paymode',    data.paymode);
+
+      // Reload everything
+      loadAll();
+      calculate();
+      renderProducts();
+      updateProductDropdown();
+      loadCompany();
+
+      var pCount = data.products ? data.products.length : 0;
+      showBackupMsg('✅ Backup restored! ' + pCount + ' products loaded. All settings applied.','success');
+
+    }catch(err){
+      showBackupMsg('❌ Failed to read backup file. Make sure it is a valid KSI backup.','error');
+    }
+  };
+  reader.readAsText(file);
+  // Reset file input
+  input.value='';
+}
+
+function showBackupMsg(msg, type){
+  var el = document.getElementById('backupMsg');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display='block';
+  el.style.background = type==='success' ? 'rgba(76,175,80,.15)' : 'rgba(211,47,47,.15)';
+  el.style.border     = type==='success' ? '1px solid rgba(76,175,80,.3)' : '1px solid rgba(211,47,47,.3)';
+  el.style.color      = type==='success' ? '#81C784' : '#FF5252';
+  setTimeout(function(){ el.style.display='none'; }, 5000);
 }
 
 // ══════════════════════════════════════════════
