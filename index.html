@@ -744,6 +744,7 @@ input:focus,select:focus{border-color:var(--red);}
 
   <div class="stab-bar">
     <button class="stab active" onclick="showStab('general',this)">🏠 General</button>
+    <button class="stab" id="pricingStab" onclick="showStab('pricing',this)">💰 Pricing</button>
     <button class="stab" onclick="showStab('leopards',this)">🐆 Leopards</button>
     <button class="stab" onclick="showStab('insta',this)">⚡ Insta World</button>
     <button class="stab" onclick="showStab('call',this)">📞 Call Courier</button>
@@ -830,31 +831,39 @@ input:focus,select:focus{border-color:var(--red);}
       </div>
     </div>
 
-    <!-- Pricing Section -->
-    <div class="card" style="margin-top:14px;">
-      <div class="ctitle"><span class="dot"></span>License Pricing</div>
-      <p class="note">Yeh prices Free Version mein neeche bar mein dikhein gi — customers dekh sakein ge aur WhatsApp pe rabta kar sakein ge.</p>
-      <div class="sc-grid">
-        <div>
-          <label class="lbl">💰 1 Year License Price (PKR)</label>
-          <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="price_1year" value="" min="0" step="1" placeholder="e.g. 5000">
-          </div>
-        </div>
-        <div>
-          <label class="lbl">♾️ Lifetime License Price (PKR)</label>
-          <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="price_lifetime" value="" min="0" step="1" placeholder="e.g. 12000">
-          </div>
-        </div>
+
+  </div>
+
+  <!-- ══ PRICING TAB ══ -->
+  <div id="stab-pricing" class="stab-page">
+    <div class="card">
+      <div class="ctitle"><span class="dot"></span>Software Pricing</div>
+      <div id="pricingLoading" style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;letter-spacing:1px;">
+        ⏳ Loading...
       </div>
-      <div style="margin-top:12px;padding:10px 14px;background:rgba(37,211,102,.07);
-        border:1px solid rgba(37,211,102,.2);border-radius:3px;font-size:.7rem;color:#888;">
-        📞 Customer WhatsApp karein ga: <strong style="color:#25D366">+97333846575</strong>
+      <div id="pricingContent" style="display:none;">
+        <!-- Prices -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;" id="priceCards"></div>
+        <!-- Buy Heading -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--txt);margin-bottom:12px;" id="buyHeading"></div>
+        <!-- Steps -->
+        <div id="buySteps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <!-- Note -->
+        <div id="buyNote" class="note" style="margin-bottom:16px;"></div>
+        <!-- WhatsApp Button -->
+        <button id="pricingWaBtn" onclick="openWhatsAppFromPricing()"
+          style="width:100%;padding:13px;background:#25D366;border:none;border-radius:3px;
+          color:white;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          ابھی WhatsApp کریں
+        </button>
+        <div style="margin-top:10px;text-align:center;font-size:.7rem;color:var(--dim);" id="pricingWaNum"></div>
       </div>
-      <div class="save-bar">
-        <button class="btn btn-red" onclick="savePricing()">💾 Save Pricing</button>
-        <span class="saved-msg" id="saved-pricing">✔ Saved</span>
+      <div id="pricingError" style="display:none;text-align:center;padding:20px;color:var(--rlight);font-size:.78rem;">
+        ❌ Prices load nahi huiñ. Internet check karein.
+        <br><br>
+        <button onclick="fetchPricingFromSheet()" class="btn btn-ghost" style="font-size:.7rem;">↺ Dobara Try Karein</button>
       </div>
     </div>
   </div>
@@ -1168,23 +1177,7 @@ function flash(id){ const m=document.getElementById(id);if(!m)return;m.classList
 // ══════════════════════════════════════════════
 //  LOAD ALL FROM STORAGE
 // ══════════════════════════════════════════════
-function savePricing(){
-  const p = {
-    oneYear:  document.getElementById('price_1year')?.value  || '',
-    lifetime: document.getElementById('price_lifetime')?.value || ''
-  };
-  lsSet('ksi_prices', p);
-  flash('saved-pricing');
-  loadAndShowPrices();
-}
-
-function loadPricing(){
-  const p = lsGet('ksi_prices', {oneYear:'', lifetime:''});
-  const e1 = document.getElementById('price_1year');
-  const e2 = document.getElementById('price_lifetime');
-  if(e1) e1.value = p.oneYear  || '';
-  if(e2) e2.value = p.lifetime || '';
-}
+// Pricing now loaded from Google Sheet
 
 function saveGeneralSettings(){
   lsSet('ksi_general',{wht:numId('g_wht'),stax:numId('g_stax'),paymode:lsGet('ksi_paymode',{v:'cod'}).v||'cod'});
@@ -1251,7 +1244,6 @@ function loadAll(){
   activateCourier(c);
   // general / tax settings
   const gg=lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax,paymode:'cod'});
-  loadPricing();
   setId('g_wht',gg.wht); setId('g_stax',gg.stax);
   const pm=lsGet('ksi_paymode',{v:'cod'}).v||gg.paymode||'cod';
   applyPayMode(pm);
@@ -1724,49 +1716,158 @@ function sendWA(type){
 // ── License state
 let _licType = 'free'; // 'free' | '1year' | 'lifetime'
 
-// ── WhatsApp Contact
+// ── Global pricing cache
+let _pricing = null;
+
+// ── Fetch pricing from Google Sheet
+async function fetchPricingFromSheet(){
+  const loading = document.getElementById('pricingLoading');
+  const content = document.getElementById('pricingContent');
+  const error   = document.getElementById('pricingError');
+  if(loading) loading.style.display='block';
+  if(content) content.style.display='none';
+  if(error)   error.style.display='none';
+
+  try {
+    const url = SCRIPT_URL + '?action=settings&secret=' + encodeURIComponent(SECRET_KEY);
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if(data.success && data.settings){
+      _pricing = data.settings;
+      // Cache in localStorage
+      lsSet('ksi_pricing_cache',{data:data.settings, ts: Date.now()});
+      renderPricing(data.settings);
+    } else {
+      showPricingError();
+    }
+  } catch(e){
+    // Try cache
+    const cache = lsGet('ksi_pricing_cache',null);
+    if(cache && cache.data){
+      _pricing = cache.data;
+      renderPricing(cache.data);
+    } else {
+      showPricingError();
+    }
+  }
+}
+
+function showPricingError(){
+  const loading = document.getElementById('pricingLoading');
+  const error   = document.getElementById('pricingError');
+  if(loading) loading.style.display='none';
+  if(error)   error.style.display='block';
+}
+
+function renderPricing(s){
+  const loading = document.getElementById('pricingLoading');
+  const content = document.getElementById('pricingContent');
+  if(loading) loading.style.display='none';
+  if(!content) return;
+  content.style.display='block';
+
+  const p1y = s.price_1year   ? Number(s.price_1year).toLocaleString('en-PK')   : '—';
+  const plt = s.price_lifetime? Number(s.price_lifetime).toLocaleString('en-PK'): '—';
+  const wa  = s.whatsapp || '97333846575';
+
+  // Price cards
+  const pc = document.getElementById('priceCards');
+  if(pc){
+    const c1 = document.createElement('div');
+    c1.style.cssText = 'background:rgba(211,47,47,.08);border:1px solid rgba(211,47,47,.3);border-radius:3px;padding:16px;text-align:center;';
+    c1.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:var(--rlight);margin-bottom:6px;">1 YEAR LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+p1y+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">365 دن کی مدت</div>';
+    const c2 = document.createElement('div');
+    c2.style.cssText = 'background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);border-radius:3px;padding:16px;text-align:center;';
+    c2.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:#81C784;margin-bottom:6px;">LIFETIME LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+plt+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">ہمیشہ کے لیے</div>';
+    pc.innerHTML=''; pc.appendChild(c1); pc.appendChild(c2);
+  }
+
+  // Heading
+  const bh = document.getElementById('buyHeading');
+  if(bh) bh.textContent = s.buy_heading || 'Software خریدیں';
+
+  // Steps
+  const bs = document.getElementById('buySteps');
+  if(bs){
+    const steps = ['buy_step1','buy_step2','buy_step3','buy_step4'].map(k=>s[k]).filter(Boolean);
+    bs.innerHTML = steps.map(function(st,i){
+      return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;">'+
+        '<div style="width:22px;height:22px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Bebas Neue,sans-serif;font-size:.8rem;color:white;flex-shrink:0;">'+(i+1)+'</div>'+
+        '<div style="font-size:.78rem;color:var(--txt);line-height:1.5;direction:rtl;text-align:right;">'+st+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  // Note
+  const bn = document.getElementById('buyNote');
+  if(bn) bn.textContent = s.buy_note || '';
+
+  // WA button
+  const wn = document.getElementById('pricingWaNum');
+  if(wn) wn.textContent = '+' + wa;
+
+  // Update global WA number
+  window._pricingWA = wa;
+}
+
+// ── Open WhatsApp from Pricing tab
+function openWhatsAppFromPricing(){
+  const wa = window._pricingWA || '97333846575';
+  const s  = _pricing || {};
+  const p1y = s.price_1year   || '';
+  const plt = s.price_lifetime|| '';
+  let msg = 'Assalam o Alaikum! KSI Courier Calculator ki license key chahiye.';
+  if(p1y || plt){
+    msg += '\n\nPrices:';
+    if(p1y) msg += '\n- 1 Year: PKR ' + p1y;
+    if(plt) msg += '\n- Lifetime: PKR ' + plt;
+  }
+  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const enc = encodeURIComponent(msg);
+  const url = (isIOS||isAndroid)
+    ? 'whatsapp://send?phone='+wa+'&text='+enc
+    : 'https://web.whatsapp.com/send?phone='+wa+'&text='+enc;
+  window.open(url,'_blank');
+}
+
+// ── Open Pricing tab in Settings
+function openPricingTab(){
+  // Go to settings page
+  const settingsBtn = document.querySelector('.ntab:last-child');
+  if(settingsBtn) showPage('settings', settingsBtn);
+  // Click pricing stab
+  setTimeout(()=>{
+    const pStab = document.getElementById('pricingStab');
+    if(pStab){ showStab('pricing', pStab); fetchPricingFromSheet(); }
+  }, 100);
+}
+
+// ── WhatsApp Contact (bar button)
 const KSI_WHATSAPP = '+97333846575';
 const KSI_WA_NUMBER = '97333846575'; // without +
 
 function openWhatsAppContact(){
-  const prices = lsGet('ksi_prices', {oneYear:'', lifetime:''});
-  let msg = 'Assalam o Alaikum! KSI Courier Calculator ki license key chahiye.';
-  if(prices.oneYear || prices.lifetime){
-    msg += '\n\nPrices:';
-    if(prices.oneYear)  msg += '\n- 1 Year: PKR ' + prices.oneYear;
-    if(prices.lifetime) msg += '\n- Lifetime: PKR ' + prices.lifetime;
-  }
-  const encoded = encodeURIComponent(msg);
-  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  let url;
-  if(isIOS || isAndroid){
-    url = 'whatsapp://send?phone=' + KSI_WA_NUMBER + '&text=' + encoded;
-  } else {
-    url = 'https://web.whatsapp.com/send?phone=' + KSI_WA_NUMBER + '&text=' + encoded;
-  }
-  window.open(url, '_blank');
+  openWhatsAppFromPricing();
 }
 
-// ── Load prices from storage and update bar
+// ── Update bar price text from sheet cache
 function loadAndShowPrices(){
-  const prices = lsGet('ksi_prices', {oneYear:'', lifetime:''});
+  const cache  = lsGet('ksi_pricing_cache',null);
+  const s      = (cache && cache.data) ? cache.data : {};
   const barText = document.getElementById('barPriceText');
   if(!barText) return;
-  let txt = '';
-  if(prices.oneYear && prices.lifetime){
-    txt = '💰 1 Year: PKR ' + Number(prices.oneYear).toLocaleString('en-PK') +
-          '  |  Lifetime: PKR ' + Number(prices.lifetime).toLocaleString('en-PK') +
-          '  — Key ke liye WhatsApp karein';
-  } else if(prices.oneYear){
-    txt = '💰 1 Year: PKR ' + Number(prices.oneYear).toLocaleString('en-PK') +
-          '  — Key ke liye WhatsApp karein';
-  } else if(prices.lifetime){
-    txt = '💰 Lifetime: PKR ' + Number(prices.lifetime).toLocaleString('en-PK') +
-          '  — Key ke liye WhatsApp karein';
-  } else {
-    txt = '📞 Activation key ke liye WhatsApp pe rabta karein';
+  const p1y = s.price_1year    ? '₨'+Number(s.price_1year).toLocaleString('en-PK')    : '';
+  const plt = s.price_lifetime ? '₨'+Number(s.price_lifetime).toLocaleString('en-PK') : '';
+  let txt = '📞 Activation key ke liye ';
+  if(p1y || plt){
+    txt = '';
+    if(p1y) txt += '1 Year: '+p1y+'  ';
+    if(plt) txt += 'Lifetime: '+plt;
+    txt += '  — Key ke liye ';
   }
+  txt += 'Pricing tab dekhein ya WhatsApp karein';
   barText.textContent = txt;
 }
 
@@ -1892,7 +1993,7 @@ function applyLicenseMode(type){
         'color:#FF5252;letter-spacing:.5px;display:flex;align-items:center;gap:10px;';
       freeBanner.innerHTML = '<span style="font-size:1.1rem;">🔒</span>'+
         '<span>Free version — Settings dekhein magar save nahi ho sakti. '+
-        '<button onclick="showLicenseScreen()" style="background:none;border:none;color:#FF5252;'+
+        '<button onclick="openPricingTab()" style="background:none;border:none;color:#FF5252;'+
         'cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate karein</button></span>';
       const wrap = settingsPage.querySelector('.wrap');
       if(wrap) wrap.insertBefore(freeBanner, wrap.firstChild);
