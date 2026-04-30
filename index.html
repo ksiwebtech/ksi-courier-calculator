@@ -762,10 +762,14 @@ input:focus,select:focus{border-color:var(--red);}
 <!-- ══════════════════════════════════════════
      PRODUCTS PAGE
 ══════════════════════════════════════════ -->
-<div id="page-products" class="page">
+<div id="page-products" class="page" style="display:none;">
 <div class="wrap">
   <div class="pg-title">Products</div>
   <div class="pg-sub">Save your products — select in calculator</div>
+  <div style="background:rgba(255,193,7,.07);border:1px solid rgba(255,193,7,.2);border-radius:3px;padding:10px 14px;margin-bottom:16px;font-size:.72rem;color:#FFC107;display:flex;align-items:flex-start;gap:8px;">
+    <span style="flex-shrink:0;">💾</span>
+    <span>Products are saved on <strong>this device only</strong> in browser storage. They will remain until you clear your browser data.</span>
+  </div>
 
   <!-- Add Product -->
   <div class="card mb14">
@@ -810,7 +814,7 @@ input:focus,select:focus{border-color:var(--red);}
 <!-- ══════════════════════════════════════════
      PRICING PAGE
 ══════════════════════════════════════════ -->
-<div id="page-pricing" class="page">
+<div id="page-pricing" class="page" style="display:none;">
 <div class="wrap">
   <div class="pg-title">Pricing</div>
   <div class="pg-sub">License plans and contact information</div>
@@ -861,7 +865,7 @@ input:focus,select:focus{border-color:var(--red);}
 <!-- ══════════════════════════════════════════
      SETTINGS PAGE
 ══════════════════════════════════════════ -->
-<div id="page-settings" class="page">
+<div id="page-settings" class="page" style="display:none;">
 <div class="wrap">
   <div class="pg-title">Settings</div>
   <div class="pg-sub">Manage couriers, rates and surcharges</div>
@@ -1729,17 +1733,19 @@ function rr(l,v){
 //  PAGE / TAB NAVIGATION
 // ══════════════════════════════════════════════
 function showPage(p,btn){
-  // hide ALL pages explicitly
-  ['calc','products','pricing','settings'].forEach(function(id){
-    var el = document.getElementById('page-'+id);
-    if(el) el.style.display='none';
+  // hide ALL pages
+  document.querySelectorAll('.page').forEach(function(el){
+    el.style.display='none';
+    el.classList.remove('active');
   });
   document.querySelectorAll('.ntab').forEach(function(x){x.classList.remove('active');});
   var pg = document.getElementById('page-'+p);
-  if(pg) pg.style.display='block';
+  if(pg){ pg.style.display='block'; pg.classList.add('active'); }
   if(btn) btn.classList.add('active');
-  if(p==='products'){ renderProducts(); updateProductDropdown(); }
-  if(p==='settings'){ loadCompany(); }
+  // Page-specific actions
+  if(p==='products'){ setTimeout(function(){ renderProducts(); updateProductDropdown(); },50); }
+  if(p==='settings'){ setTimeout(function(){ loadCompany(); },50); }
+  if(p==='pricing'){  setTimeout(function(){ fetchPricingFromSheet(); },50); }
 }
 function showStab(t,btn){
   document.querySelectorAll('.stab-page').forEach(x=>x.classList.remove('active'));
@@ -1998,7 +2004,12 @@ function renderPricing(s){
   // Steps
   const bs = document.getElementById('buySteps');
   if(bs){
-    const steps = ['buy_step1','buy_step2','buy_step3','buy_step4'].map(k=>s[k]).filter(Boolean);
+    // Support both buy_step1-4 AND buy_procedure (single text block)
+    var steps = ['buy_step1','buy_step2','buy_step3','buy_step4'].map(function(k){return s[k];}).filter(Boolean);
+    // If no steps but buy_procedure exists, split by newline
+    if(!steps.length && s.buy_procedure){
+      steps = s.buy_procedure.split('\n').filter(function(l){return l.trim();});
+    }
     bs.innerHTML = steps.map(function(st,i){
       return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;">'+
         '<div style="width:22px;height:22px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Bebas Neue,sans-serif;font-size:.8rem;color:white;flex-shrink:0;">'+(i+1)+'</div>'+
@@ -2511,26 +2522,33 @@ function deleteProduct(id){
 }
 
 function renderProducts(){
-  const list   = document.getElementById('productsList');
+  var list = document.getElementById('productsList');
   if(!list) return;
-  const search = (document.getElementById('prodSearch')?.value||'').toLowerCase();
-  let prods    = getProducts();
-  if(search) prods = prods.filter(p=>p.name.toLowerCase().includes(search)||p.notes.toLowerCase().includes(search));
+  var searchEl = document.getElementById('prodSearch');
+  var search = searchEl ? searchEl.value.toLowerCase() : '';
+  var prods = getProducts();
+  if(search) prods = prods.filter(function(p){
+    return p.name.toLowerCase().indexOf(search)>-1 || (p.notes||'').toLowerCase().indexOf(search)>-1;
+  });
 
   if(!prods.length){
-    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">No products found</div>';
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">'+(search?'No products found':'No products yet — add one above')+'</div>';
     return;
   }
 
-  list.innerHTML = prods.map(p=>'<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:6px;">'+
-    '<div style="flex:1;">'+
-      '<div style="font-size:.85rem;color:var(--txt);font-weight:500;">'+p.name+'</div>'+
-      (p.notes?'<div style="font-size:.7rem;color:var(--dim);margin-top:2px;">'+p.notes+'</div>':'')+
-    '</div>'+
-    '<div style="font-family:DM Mono,monospace;font-size:.9rem;color:var(--txt);margin-right:8px;">₨'+Math.round(p.price).toLocaleString('en-PK')+'</div>'+
-    '<button onclick="useProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.65rem;padding:4px 8px;cursor:pointer;letter-spacing:1px;white-space:nowrap;">Use</button>'+
-    '<button onclick="deleteProduct('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.65rem;padding:4px 8px;cursor:pointer;">✕</button>'+
-  '</div>').join('');
+  var html = '';
+  prods.forEach(function(p){
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:6px;">';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-size:.85rem;color:var(--txt);font-weight:500;">'+p.name+'</div>';
+    if(p.notes) html += '<div style="font-size:.7rem;color:var(--dim);margin-top:2px;">'+p.notes+'</div>';
+    html += '</div>';
+    html += '<div style="font-family:DM Mono,monospace;font-size:.9rem;color:var(--txt);margin-right:8px;">&#8360;'+Math.round(p.price).toLocaleString('en-PK')+'</div>';
+    html += '<button onclick="useProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.65rem;padding:5px 10px;cursor:pointer;letter-spacing:1px;white-space:nowrap;margin-right:4px;">Use</button>';
+    html += '<button onclick="deleteProduct('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.65rem;padding:5px 8px;cursor:pointer;">✕</button>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
 }
 
 function useProduct(id){
