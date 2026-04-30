@@ -38,7 +38,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .ntab.active{color:var(--rlight);border-bottom-color:var(--red);}
 
 /* ── PAGES ── */
-.page{display:none;}.page.active{display:block;}
+.page{display:none;}
 .wrap{max-width:1040px;margin:0 auto;padding:24px 18px calc(var(--sticky) + 70px);position:relative;z-index:1;}
 .pg-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:4px;margin-bottom:3px;}
 .pg-sub{font-size:.68rem;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
@@ -433,12 +433,12 @@ input:focus,select:focus{border-color:var(--red);}
       <button onclick="useFreeVersion()" style="background:none;border:none;color:#555;
         font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;
         text-decoration:underline;letter-spacing:.5px;">
-        Abhi activate nahi karna — Free version use karein
+        Skip for now — Use Free version
       </button>
     </div>
     <div class="lic-info">
-      License key aapko KSI se WhatsApp/Email pe mili hogi<br>
-      Madad ke liye: <strong style="color:#D32F2F">ksiwebtech@gmail.com</strong>
+      Your license key was sent via WhatsApp/Email by KSI<br>
+      Support: <strong style="color:#D32F2F">ksiwebtech@gmail.com</strong>
     </div>
   </div>
 </div>
@@ -463,7 +463,7 @@ input:focus,select:focus{border-color:var(--red);}
 <!-- ══════════════════════════════════════════
      CALCULATOR PAGE
 ══════════════════════════════════════════ -->
-<div id="page-calc" class="page active">
+<div id="page-calc" class="page" style="display:block;">
 <div class="wrap">
   <div class="pg-title">Shipment Calculator</div>
   <div class="pg-sub" id="calcSub">Select a courier in Settings</div>
@@ -499,21 +499,21 @@ input:focus,select:focus{border-color:var(--red);}
       <div class="card mb14" id="productCard">
         <div class="ctitle"><span class="dot"></span>Product Details</div>
         <div class="mb10">
-          <label class="lbl">Saved Product Select Karein</label>
+          <label class="lbl">Select Saved Product</label>
           <div class="sw">
             <select id="productSelect" onchange="selectProduct(this.value)">
-              <option value="">-- Manual amount enter karein --</option>
+              <option value="">-- Enter amount manually --</option>
             </select>
           </div>
         </div>
         <div class="mb10">
           <label class="lbl">Product Name</label>
-          <input type="text" id="productName" placeholder="Product ka naam" oninput="calculate()">
+          <input type="text" id="productName" placeholder="Product name" oninput="calculate()">
         </div>
         <div>
           <label class="lbl">Product Amount (PKR) — optional</label>
           <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="productAmt" value="" min="0" step="1" placeholder="Khali chhoren = sirf delivery" oninput="calculate()">
+            <input type="number" id="productAmt" value="" min="0" step="1" placeholder="Leave empty = delivery cost only" oninput="calculate()">
           </div>
         </div>
         <div class="mb10" style="margin-top:10px;">
@@ -659,7 +659,7 @@ input:focus,select:focus{border-color:var(--red);}
               <span class="rv" id="bStax">—</span>
             </div>
             <div class="rrow" id="rowCodTax" style="display:none">
-              <span class="rl">COD Tax (WHT+Sales)</span>
+              <span class="rl">COD Tax (WHT+Sales Tax)</span>
               <span class="rv" id="bCodTax">—</span>
             </div>
             <div class="rrow" id="rowDiscount" style="display:none">
@@ -681,7 +681,7 @@ input:focus,select:focus{border-color:var(--red);}
 <div class="activate-bar" id="activateBar">
   <div style="display:flex;flex-direction:column;gap:2px;">
     <span style="font-size:.72rem;color:rgba(255,255,255,.9);letter-spacing:.5px;">
-      ⚠️ Free Version — Activate karein sab features use karne ke liye
+      ⚠️ Free Version — Activate now sab features use karne ke liye
     </span>
     <span style="font-size:.65rem;color:rgba(255,255,255,.6);" id="barPriceText">
       📞 Rabta karein: WhatsApp pe
@@ -765,11 +765,11 @@ input:focus,select:focus{border-color:var(--red);}
 <div id="page-products" class="page">
 <div class="wrap">
   <div class="pg-title">Products</div>
-  <div class="pg-sub">Apni products save karein — calculator mein select karein</div>
+  <div class="pg-sub">Save your products — select in calculator</div>
 
   <!-- Add Product -->
   <div class="card mb14">
-    <div class="ctitle"><span class="dot"></span>Product Add Karein</div>
+    <div class="ctitle"><span class="dot"></span>Add Product</div>
     <div class="grid2" style="gap:12px;">
       <div>
         <label class="lbl">Product Name</label>
@@ -800,7 +800,7 @@ input:focus,select:focus{border-color:var(--red);}
     </div>
     <div id="productsList">
       <div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">
-        Koi product nahi — upar se add karein
+        No products yet — add one above
       </div>
     </div>
   </div>
@@ -813,7 +813,7 @@ input:focus,select:focus{border-color:var(--red);}
 <div id="page-pricing" class="page">
 <div class="wrap">
   <div class="pg-title">Pricing</div>
-  <div class="pg-sub">License plans aur rabta ki maloomat</div>
+  <div class="pg-sub">License plans and contact information</div>
 
   <div class="card">
     <div class="ctitle"><span class="dot"></span>License Plans</div>
@@ -827,13 +827,13 @@ input:focus,select:focus{border-color:var(--red);}
       <div id="buyNote" class="note" style="margin-bottom:20px;"></div>
       <button onclick="openWhatsAppFromPricing()" style="width:100%;padding:14px;background:#25D366;border:none;border-radius:3px;color:white;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        ابھی WhatsApp کریں
+        WhatsApp Now
       </button>
       <div style="text-align:center;font-size:.75rem;color:var(--dim);margin-top:10px;" id="pricingWaNum"></div>
     </div>
     <div id="pricingError" style="display:none;text-align:center;padding:30px;">
-      <div style="color:var(--rlight);font-size:.8rem;margin-bottom:12px;">❌ Prices load nahi huiñ. Internet check karein.</div>
-      <button onclick="fetchPricingFromSheet()" class="btn btn-ghost">↺ Dobara Try</button>
+      <div style="color:var(--rlight);font-size:.8rem;margin-bottom:12px;">❌ Could not load prices. Check your internet connection.</div>
+      <button onclick="fetchPricingFromSheet()" class="btn btn-ghost">↺ Try Again</button>
     </div>
   </div>
 </div>
@@ -849,6 +849,7 @@ input:focus,select:focus{border-color:var(--red);}
 
   <div class="stab-bar">
     <button class="stab active" onclick="showStab('general',this)">🏠 General</button>
+    <button class="stab" onclick="showStab('company',this)">🏢 Company</button>
     <button class="stab" onclick="showStab('leopards',this)">🐆 Leopards</button>
     <button class="stab" onclick="showStab('insta',this)">⚡ Insta World</button>
     <button class="stab" onclick="showStab('call',this)">📞 Call Courier</button>
@@ -858,7 +859,7 @@ input:focus,select:focus{border-color:var(--red);}
   <div id="stab-general" class="stab-page active">
     <div class="card">
       <div class="ctitle"><span class="dot"></span>Active Courier</div>
-      <p class="note">Select which courier's rates will be used in the calculator. Only one can be active at a time. Surcharges (Fuel, GST, Packaging, Other) are configured inside each courier's own tab.</p>
+      <p class="note">Select the courier whose rates will be used in the calculator. Only one active at a time.</p>
       <div class="courier-list">
         <div class="ci" id="ci-leopards" onclick="selectCourier('leopards')">
           <div class="ci-radio"></div>
@@ -883,7 +884,7 @@ input:focus,select:focus{border-color:var(--red);}
           <div class="ci-chip" style="background:#2E7D32;padding:0;overflow:hidden;"><img src="data:image/jpeg;base64,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" style="width:44px;height:36px;object-fit:cover;" alt="Call Courier"></div>
           <div class="ci-info">
             <div class="ci-name">Call Courier</div>
-            <div class="ci-desc">COD/Non-COD — Same City · Same Prov · Other Prov · Return</div>
+            <div class="ci-desc">COD/Non-COD — Same City · Same Province · Other Province · Return</div>
           </div>
           <span class="ci-active" id="badge-call" style="display:none">● Active</span>
         </div>
@@ -936,6 +937,58 @@ input:focus,select:focus{border-color:var(--red);}
     </div>
 
 
+  </div>
+
+  <!-- ══ COMPANY TAB ══ -->
+  <div id="stab-company" class="stab-page">
+    <div class="card">
+      <div class="ctitle"><span class="dot"></span>Company Profile</div>
+      <p class="note">Your company details appear on invoices and quotations.</p>
+      <div class="grid2" style="gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="lbl">Company Name</label>
+          <input type="text" id="co_name" placeholder="e.g. KSI Traders">
+        </div>
+        <div>
+          <label class="lbl">Phone / WhatsApp</label>
+          <input type="text" id="co_phone" placeholder="e.g. 0300-1234567">
+        </div>
+      </div>
+      <div class="grid2" style="gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="lbl">Email</label>
+          <input type="text" id="co_email" placeholder="info@company.com">
+        </div>
+        <div>
+          <label class="lbl">City</label>
+          <input type="text" id="co_city" placeholder="e.g. Karachi">
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Address</label>
+        <input type="text" id="co_address" placeholder="Shop / Office Address">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Website (Optional)</label>
+        <input type="text" id="co_website" placeholder="www.yoursite.com">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Tagline / Slogan (Optional)</label>
+        <input type="text" id="co_tagline" placeholder="e.g. Quality You Can Trust">
+      </div>
+      <div class="save-bar">
+        <button class="btn btn-red" onclick="saveCompany()">💾 Save Profile</button>
+        <span class="saved-msg" id="saved-company">✔ Saved!</span>
+      </div>
+    </div>
+
+    <!-- Invoice Preview -->
+    <div class="card" style="margin-top:14px;">
+      <div class="ctitle"><span class="dot"></span>Invoice Header Preview</div>
+      <div id="invoicePreview" style="background:var(--dark);border:1px solid var(--bdr);border-radius:2px;padding:16px;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--txt);line-height:1.8;white-space:pre;">
+Fill in details above to preview
+      </div>
+    </div>
   </div>
 
   <!-- ══ LEOPARDS TAB ══ -->
@@ -1657,13 +1710,17 @@ function rr(l,v){
 //  PAGE / TAB NAVIGATION
 // ══════════════════════════════════════════════
 function showPage(p,btn){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ntab').forEach(x=>x.classList.remove('active'));
-  const pg = document.getElementById('page-'+p);
-  if(pg) pg.classList.add('active');
+  // hide ALL pages explicitly
+  ['calc','products','pricing','settings'].forEach(function(id){
+    var el = document.getElementById('page-'+id);
+    if(el) el.style.display='none';
+  });
+  document.querySelectorAll('.ntab').forEach(function(x){x.classList.remove('active');});
+  var pg = document.getElementById('page-'+p);
+  if(pg) pg.style.display='block';
   if(btn) btn.classList.add('active');
-  // On products page open — render list
   if(p==='products'){ renderProducts(); updateProductDropdown(); }
+  if(p==='settings'){ loadCompany(); }
 }
 function showStab(t,btn){
   document.querySelectorAll('.stab-page').forEach(x=>x.classList.remove('active'));
@@ -1859,16 +1916,16 @@ function renderPricing(s){
   if(pc){
     const c1 = document.createElement('div');
     c1.style.cssText = 'background:rgba(211,47,47,.08);border:1px solid rgba(211,47,47,.3);border-radius:3px;padding:16px;text-align:center;';
-    c1.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:var(--rlight);margin-bottom:6px;">1 YEAR LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+p1y+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">365 دن کی مدت</div>';
+    c1.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:var(--rlight);margin-bottom:6px;">1 YEAR LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+p1y+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">365 Days</div>';
     const c2 = document.createElement('div');
     c2.style.cssText = 'background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);border-radius:3px;padding:16px;text-align:center;';
-    c2.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:#81C784;margin-bottom:6px;">LIFETIME LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+plt+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">ہمیشہ کے لیے</div>';
+    c2.innerHTML = '<div style="font-size:.65rem;letter-spacing:2px;color:#81C784;margin-bottom:6px;">LIFETIME LICENSE</div><div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:2px;color:var(--txt);">&#8360;'+plt+'</div><div style="font-size:.62rem;color:var(--dim);margin-top:4px;">Forever</div>';
     pc.innerHTML=''; pc.appendChild(c1); pc.appendChild(c2);
   }
 
   // Heading
   const bh = document.getElementById('buyHeading');
-  if(bh) bh.textContent = s.buy_heading || 'Software خریدیں';
+  if(bh) bh.textContent = s.buy_heading || 'Buy KSI Courier Calculator';
 
   // Steps
   const bs = document.getElementById('buySteps');
@@ -1877,7 +1934,7 @@ function renderPricing(s){
     bs.innerHTML = steps.map(function(st,i){
       return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;">'+
         '<div style="width:22px;height:22px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Bebas Neue,sans-serif;font-size:.8rem;color:white;flex-shrink:0;">'+(i+1)+'</div>'+
-        '<div style="font-size:.78rem;color:var(--txt);line-height:1.5;direction:rtl;text-align:right;">'+st+'</div>'+
+        '<div style="font-size:.78rem;color:var(--txt);line-height:1.5;direction:ltr;text-align:left;">'+st+'</div>'+
         '</div>';
     }).join('');
   }
@@ -1948,7 +2005,7 @@ function loadAndShowPrices(){
     if(plt) txt += 'Lifetime: '+plt;
     txt += '  — Key ke liye ';
   }
-  txt += 'Pricing tab dekhein ya WhatsApp karein';
+  txt += 'See Pricing tab or WhatsApp us';
   barText.textContent = txt;
 }
 
@@ -1966,6 +2023,7 @@ function useFreeVersion(){
   loadAll();
   calculate();
   updateProductDropdown();
+  loadCompany();
 }
 
 // ── Apply license restrictions
@@ -2007,12 +2065,12 @@ function applyLicenseMode(type){
   if(copyBtn){
     copyBtn.disabled = isFree;
     copyBtn.style.opacity = isFree ? '.3' : '';
-    copyBtn.title = isFree ? '🔒 Activate karein' : 'Copy Details';
+    copyBtn.title = isFree ? '🔒 Activate now' : 'Copy Details';
   }
   if(waBtn){
     waBtn.disabled = isFree;
     waBtn.style.opacity = isFree ? '.3' : '';
-    waBtn.title = isFree ? '🔒 Activate karein' : 'Send via WhatsApp';
+    waBtn.title = isFree ? '🔒 Activate now' : 'Send via WhatsApp';
   }
 
   // Reset button
@@ -2057,7 +2115,7 @@ function applyLicenseMode(type){
       el.style.opacity = isFree ? '.35' : '';
       el.style.cursor  = isFree ? 'not-allowed' : '';
       if(isFree){
-        el.title = '🔒 Activate karein';
+        el.title = '🔒 Activate now';
         el.onclick = (e)=>{ e.stopPropagation(); showLicenseScreen(); };
       } else {
         el.title = '';
@@ -2074,9 +2132,9 @@ function applyLicenseMode(type){
         'border-radius:3px;padding:10px 16px;margin-bottom:16px;font-size:.72rem;'+
         'color:#FF5252;letter-spacing:.5px;display:flex;align-items:center;gap:10px;';
       freeBanner.innerHTML = '<span style="font-size:1.1rem;">🔒</span>'+
-        '<span>Free version — Settings dekhein magar save nahi ho sakti. '+
+        '<span>Free version — You can view settings but cannot save. '+
         '<button onclick="openPricingTab()" style="background:none;border:none;color:#FF5252;'+
-        'cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate karein</button></span>';
+        'cursor:pointer;text-decoration:underline;font-size:.72rem;padding:0;">Activate now</button></span>';
       const wrap = settingsPage.querySelector('.wrap');
       if(wrap) wrap.insertBefore(freeBanner, wrap.firstChild);
     } else if(!isFree && freeBanner){
@@ -2156,14 +2214,14 @@ async function activateLicense(){
   const formattedKey = rawKey.substring(0,3)+'-'+rawKey.substring(3,7)+'-'+rawKey.substring(7,11)+'-'+rawKey.substring(11,15);
 
   if(rawKey.length < 15){
-    showLicMsg('❌ Poori key enter karein (KSI-XXXX-XXXX-XXXX)', 'error');
+    showLicMsg('❌ Enter complete key (KSI-XXXX-XXXX-XXXX)', 'error');
     return;
   }
 
   const btn = document.getElementById('licBtn');
   btn.disabled = true;
   btn.textContent = 'Checking...';
-  showLicMsg('⏳ Server se check ho raha hai...', 'loading');
+  showLicMsg('⏳ Checking with server...', 'loading');
 
   try {
     const machine = getMachineId();
@@ -2211,7 +2269,7 @@ async function activateLicense(){
       btn.textContent = '🔐 Activate Software';
     }
   } catch(err) {
-    showLicMsg('❌ Server se connection nahi hua. Internet check karein.', 'error');
+    showLicMsg('❌ Could not connect to server. Check your internet.', 'error');
     btn.disabled = false;
     btn.textContent = '🔐 Activate Software';
   }
@@ -2297,6 +2355,49 @@ async function initApp(){
 }
 
 // ══════════════════════════════════════════════
+//  COMPANY PROFILE
+// ══════════════════════════════════════════════
+const CO_FIELDS = ['co_name','co_phone','co_email','co_city','co_address','co_website','co_tagline'];
+
+function saveCompany(){
+  var co = {};
+  CO_FIELDS.forEach(function(id){
+    var el = document.getElementById(id);
+    co[id.replace('co_','')] = el ? el.value.trim() : '';
+  });
+  lsSet('ksi_company', co);
+  flash('saved-company');
+  updateInvoicePreview();
+}
+
+function loadCompany(){
+  var co = lsGet('ksi_company',{});
+  CO_FIELDS.forEach(function(id){
+    var el = document.getElementById(id);
+    var key = id.replace('co_','');
+    if(el) el.value = co[key]||'';
+  });
+  updateInvoicePreview();
+}
+
+function updateInvoicePreview(){
+  var co = lsGet('ksi_company',{});
+  var el = document.getElementById('invoicePreview');
+  if(!el) return;
+  var lines = [];
+  if(co.name)    lines.push('  ' + co.name.toUpperCase());
+  if(co.tagline) lines.push('  ' + co.tagline);
+  if(co.address) lines.push('  ' + co.address);
+  if(co.city)    lines.push('  ' + co.city);
+  if(co.phone)   lines.push('  Tel: ' + co.phone);
+  if(co.email)   lines.push('  Email: ' + co.email);
+  if(co.website) lines.push('  ' + co.website);
+  if(!lines.length){ el.textContent='Fill in details above to preview'; return; }
+  lines.push('  ━━━━━━━━━━━━━━━━━━━━━━━━━');
+  el.textContent = lines.join('\n');
+}
+
+// ══════════════════════════════════════════════
 //  PRODUCTS MANAGER
 // ══════════════════════════════════════════════
 function getProducts(){
@@ -2310,8 +2411,8 @@ function addProduct(){
   const name  = document.getElementById('prodName')?.value.trim();
   const price = parseFloat(document.getElementById('prodPrice')?.value)||0;
   const notes = document.getElementById('prodNotes')?.value.trim()||'';
-  if(!name){ alert('Product name likhein!'); return; }
-  if(!price){ alert('Price likhein!'); return; }
+  if(!name){ alert('Please enter product name!'); return; }
+  if(!price){ alert('Please enter price!'); return; }
 
   const prods = getProducts();
   prods.push({ id: Date.now(), name, price, notes });
@@ -2342,7 +2443,7 @@ function renderProducts(){
   if(search) prods = prods.filter(p=>p.name.toLowerCase().includes(search)||p.notes.toLowerCase().includes(search));
 
   if(!prods.length){
-    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">Koi product nahi mila</div>';
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">No products found</div>';
     return;
   }
 
@@ -2390,7 +2491,7 @@ function updateProductDropdown(){
   const sel = document.getElementById('productSelect');
   if(!sel) return;
   const prods = getProducts();
-  sel.innerHTML = '<option value="">-- Manual amount enter karein --</option>'+
+  sel.innerHTML = '<option value="">-- Enter amount manually --</option>'+
     prods.map(p=>'<option value="'+p.id+'">'+p.name+' — ₨'+Math.round(p.price).toLocaleString('en-PK')+'</option>').join('');
 }
 
