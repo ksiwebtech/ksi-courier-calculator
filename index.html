@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,9 +207,78 @@ input:focus,select:focus{border-color:var(--red);}
 /* info note */
 .note{font-size:.68rem;color:var(--dim);line-height:1.6;margin-bottom:14px;
   padding:9px 12px;background:rgba(255,255,255,.02);border-left:2px solid var(--red);}
+
+/* ── LICENSE SCREEN ── */
+#licenseScreen{position:fixed;inset:0;z-index:9999;background:#0A0A0A;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.lic-box{background:#1A1A1A;border:1px solid #2A2A2A;border-radius:4px;
+  padding:36px;width:90%;max-width:420px;position:relative;overflow:hidden;}
+.lic-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#D32F2F;}
+.lic-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center;}
+.lic-logo-icon{width:44px;height:44px;background:#D32F2F;display:flex;align-items:center;
+  justify-content:center;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);}
+.lic-logo-icon svg{width:22px;height:22px;fill:#fff;}
+.lic-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;text-align:center;margin-bottom:4px;}
+.lic-sub{font-size:.7rem;color:#888;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:28px;}
+.lic-field{margin-bottom:16px;}
+.lic-field label{display:block;font-size:.65rem;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:#888;margin-bottom:6px;}
+.lic-field input{width:100%;background:#111;border:1px solid #2A2A2A;border-radius:3px;
+  color:#F5F5F5;font-family:'DM Mono',monospace;font-size:1rem;padding:12px 14px;
+  outline:none;transition:border-color .2s;letter-spacing:2px;text-transform:uppercase;
+  text-align:center;}
+.lic-field input:focus{border-color:#D32F2F;}
+.lic-field input::placeholder{letter-spacing:1px;text-transform:none;font-size:.85rem;color:#555;}
+.lic-btn{width:100%;padding:13px;background:#D32F2F;border:none;border-radius:3px;
+  color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;
+  cursor:pointer;transition:all .2s;margin-top:4px;}
+.lic-btn:hover{background:#B71C1C;}
+.lic-btn:disabled{background:#444;cursor:not-allowed;}
+.lic-msg{margin-top:14px;padding:10px 14px;border-radius:3px;font-size:.78rem;
+  text-align:center;display:none;line-height:1.5;}
+.lic-msg.error{background:rgba(211,47,47,.15);border:1px solid rgba(211,47,47,.3);color:#FF5252;}
+.lic-msg.success{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#81C784;}
+.lic-msg.loading{background:rgba(255,255,255,.05);border:1px solid #2A2A2A;color:#888;}
+.lic-info{margin-top:20px;padding-top:16px;border-top:1px solid #2A2A2A;
+  font-size:.65rem;color:#555;text-align:center;line-height:1.8;}
+.lic-activated{background:#1A1A1A;border:1px solid #2A2A2A;border-radius:4px;
+  padding:28px;width:90%;max-width:420px;text-align:center;display:none;}
 </style>
 </head>
 <body>
+
+
+<!-- LICENSE SCREEN -->
+<div id="licenseScreen">
+  <div class="lic-box" id="licBox">
+    <div class="lic-logo">
+      <div class="lic-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg>
+      </div>
+      <div>
+        <div class="lic-title">KSI</div>
+      </div>
+    </div>
+    <div class="lic-sub">Courier Calculator — License Activation</div>
+
+    <div class="lic-field">
+      <label>License Key</label>
+      <input type="text" id="licKeyInput" placeholder="KSI-XXXX-XXXX-XXXX" 
+        maxlength="16" oninput="formatKey(this)" onkeydown="if(event.key==='Enter') activateLicense()">
+    </div>
+
+    <button class="lic-btn" id="licBtn" onclick="activateLicense()">
+      🔐 Activate Software
+    </button>
+
+    <div class="lic-msg" id="licMsg"></div>
+
+    <div class="lic-info">
+      License key aapko KSI se WhatsApp/Email pe mili hogi<br>
+      Madad ke liye: <strong style="color:#D32F2F">ksiwebtech@gmail.com</strong>
+    </div>
+  </div>
+</div>
 
 <!-- ══ NAV ══ -->
 <nav class="nav">
@@ -1408,11 +1478,154 @@ function sendWA(type){
   window.open(url, '_blank');
 }
 
+
+// ═══════════════════════════════════════════════════════════
+//  LICENSE SYSTEM
+// ═══════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWdqJc7bTjVIt2L4ccpRKLyuRwTUVEGdxhdN2roCUrYjY3qYpLtkwoQBQzdfO6pUIt/exec';
+const SECRET_KEY = 'KSI2024SECRET';
+
+function getMachineId(){
+  let id = localStorage.getItem('ksi_machine_id');
+  if(!id){
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    id = Array.from(arr, b => b.toString(16).padStart(2,'0')).join('');
+    localStorage.setItem('ksi_machine_id', id);
+  }
+  return id;
+}
+
+function formatKey(input){
+  let val = input.value.replace(/[^A-Z0-9]/gi,'').toUpperCase();
+  let formatted = '';
+  if(val.length > 0) formatted = val.substring(0,3);
+  if(val.length > 3) formatted += '-' + val.substring(3,7);
+  if(val.length > 7) formatted += '-' + val.substring(7,11);
+  if(val.length > 11) formatted += '-' + val.substring(11,15);
+  input.value = formatted;
+}
+
+function showLicMsg(msg, type){
+  const el = document.getElementById('licMsg');
+  el.textContent = msg;
+  el.className = 'lic-msg ' + type;
+  el.style.display = 'block';
+}
+
+async function activateLicense(){
+  const rawKey = document.getElementById('licKeyInput').value.replace(/-/g,'').toUpperCase();
+  const formattedKey = rawKey.substring(0,3)+'-'+rawKey.substring(3,7)+'-'+rawKey.substring(7,11)+'-'+rawKey.substring(11,15);
+
+  if(rawKey.length < 15){
+    showLicMsg('❌ Poori key enter karein (KSI-XXXX-XXXX-XXXX)', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('licBtn');
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  showLicMsg('⏳ Server se check ho raha hai...', 'loading');
+
+  try {
+    const machine = getMachineId();
+    const url = SCRIPT_URL + 
+      '?action=validate&key=' + encodeURIComponent(formattedKey) + 
+      '&machine=' + encodeURIComponent(machine) +
+      '&secret=' + encodeURIComponent(SECRET_KEY);
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if(data.success){
+      // Save license locally
+      lsSet('ksi_license', {
+        key: formattedKey,
+        client: data.client || '',
+        type: data.type || 'Standard',
+        expiry: data.expiry || 'Lifetime',
+        activatedAt: new Date().toISOString()
+      });
+
+      showLicMsg('✅ ' + data.message, 'success');
+
+      setTimeout(()=>{
+        document.getElementById('licenseScreen').style.display = 'none';
+        loadAll();
+        calculate();
+      }, 1500);
+
+    } else {
+      showLicMsg('❌ ' + data.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '🔐 Activate Software';
+    }
+  } catch(err) {
+    showLicMsg('❌ Server se connection nahi hua. Internet check karein.', 'error');
+    btn.disabled = false;
+    btn.textContent = '🔐 Activate Software';
+  }
+}
+
+function checkExistingLicense(){
+  const lic = lsGet('ksi_license', null);
+  if(!lic || !lic.key) return false;
+
+  // Expiry check (client side)
+  if(lic.expiry && lic.expiry !== 'Lifetime'){
+    const parts = lic.expiry.split('-');
+    if(parts.length === 3){
+      const expDate = new Date(parts[2], parts[1]-1, parts[0]);
+      if(expDate < new Date()){
+        localStorage.removeItem('ksi_license');
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// ── INIT: Check license on load ──
+async function initApp(){
+  const hasLic = checkExistingLicense();
+
+  if(hasLic){
+    // Already activated — verify with server silently
+    document.getElementById('licenseScreen').style.display = 'none';
+
+    // Background verify
+    try {
+      const lic = lsGet('ksi_license', null);
+      const machine = getMachineId();
+      const url = SCRIPT_URL +
+        '?action=validate&key=' + encodeURIComponent(lic.key) +
+        '&machine=' + encodeURIComponent(machine) +
+        '&secret=' + encodeURIComponent(SECRET_KEY);
+
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if(!data.success){
+        // Invalid — show license screen
+        localStorage.removeItem('ksi_license');
+        document.getElementById('licenseScreen').style.display = 'flex';
+      }
+    } catch(e){
+      // Server unreachable — allow offline use
+      console.log('Offline mode');
+    }
+
+    loadAll();
+    calculate();
+  } else {
+    document.getElementById('licenseScreen').style.display = 'flex';
+  }
+}
+
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-loadAll();
-calculate();
+initApp();
 </script>
 </body>
 </html>
