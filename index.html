@@ -531,15 +531,6 @@ input:focus,select:focus{border-color:var(--red);}
   <div class="pg-title">Shipment Calculator</div>
   <div class="pg-sub" id="calcSub">Select a courier in Settings</div>
 
-  <div class="fbox">
-    <p>
-      <span class="step">Step 1 →</span> Base Rate &nbsp;<span style="color:#555">(zone + weight slab)</span><br>
-      <span class="step">Step 2 →</span> + Fuel Surcharge % &nbsp;<span style="color:#555">on Base Rate only</span><br>
-      <span class="step">Step 3 →</span> + GST % &nbsp;<span style="color:#555">on (Base + Fuel)</span><br>
-      <span class="step">Step 4 →</span> + Packaging &nbsp;<span style="color:#555">per KG × billable KG (min 1 KG, ceil) — added last</span>
-    </p>
-  </div>
-
   <div class="grid2">
     <!-- LEFT -->
     <div>
@@ -573,16 +564,35 @@ input:focus,select:focus{border-color:var(--red);}
           <label class="lbl">Product Name</label>
           <input type="text" id="productName" placeholder="Product name" oninput="calculate()">
         </div>
-        <div>
-          <label class="lbl">Product Amount (PKR) — optional</label>
-          <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="productAmt" value="" min="0" step="1" placeholder="Leave empty = delivery cost only" oninput="calculate()">
+        <div class="grid2" style="gap:10px;" class="mb10">
+          <div>
+            <label class="lbl">Unit Price (PKR)</label>
+            <div class="pw"><span class="pfx">₨</span>
+              <input type="number" id="productAmt" value="" min="0" step="1" placeholder="0" oninput="calculate()">
+            </div>
+          </div>
+          <div>
+            <label class="lbl">Quantity</label>
+            <input type="number" id="productQty" value="1" min="1" step="1" oninput="calculate()">
           </div>
         </div>
-        <div class="mb10" style="margin-top:10px;">
-          <label class="lbl">Discount (PKR)</label>
-          <div class="pw"><span class="pfx">₨</span>
-            <input type="number" id="discountAmt" value="0" min="0" step="1" oninput="calculate()">
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:2px;padding:8px 12px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.7rem;color:var(--dim);">Total Product Amount</span>
+          <span style="font-family:'DM Mono',monospace;font-size:.9rem;color:var(--txt);" id="productTotal">₨0</span>
+        </div>
+        <div>
+          <label class="lbl">Discount</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="sw" style="width:130px;flex-shrink:0;">
+              <select id="discountType" onchange="calculate()" style="font-size:.82rem;">
+                <option value="fixed">Fixed (₨)</option>
+                <option value="pct">Percentage (%)</option>
+              </select>
+            </div>
+            <div class="pw" style="flex:1;">
+              <span class="pfx" id="discPfx">₨</span>
+              <input type="number" id="discountAmt" value="0" min="0" step="1" oninput="calculate()">
+            </div>
           </div>
         </div>
       </div>
@@ -1355,7 +1365,15 @@ function lsGet(k,def){
     return parsed;
   }catch(e){return def;}
 }
-function lsSet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+function lsSet(k,v){
+  // In free mode, block saving of products and settings
+  // Allow: ksi_license, ksi_machine_id, ksi_pricing_cache
+  if(_licType==='free'){
+    var allowInFree=['ksi_license','ksi_machine_id','ksi_pricing_cache'];
+    if(allowInFree.indexOf(k)===-1) return; // Block save in free mode
+  }
+  try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
+}
 function numId(id){ return parseFloat(document.getElementById(id)?.value)||0; }
 function setId(id,v){ const e=document.getElementById(id);if(e)e.value=v; }
 function flash(id){ const m=document.getElementById(id);if(!m)return;m.classList.add('show');setTimeout(()=>m.classList.remove('show'),2000); }
@@ -1653,9 +1671,20 @@ function calculate(){
   setT('rOther',   fmt(otherCharge));
 
   // ── Product + COD tax logic
-  const productAmt  = parseFloat(document.getElementById('productAmt')?.value)||0;
-  const discountAmt = parseFloat(document.getElementById('discountAmt')?.value)||0;
+  const unitPrice   = parseFloat(document.getElementById('productAmt')?.value)||0;
+  const productQty  = Math.max(1, parseInt(document.getElementById('productQty')?.value)||1);
+  const productAmt  = unitPrice * productQty;
+  const discountType= document.getElementById('discountType')?.value||'fixed';
+  const discountVal = parseFloat(document.getElementById('discountAmt')?.value)||0;
   const productName = document.getElementById('productName')?.value||'';
+
+  // Update discount prefix
+  var discPfx = document.getElementById('discPfx');
+  if(discPfx) discPfx.textContent = discountType==='pct' ? '%' : '₨';
+
+  // Update product total display
+  var ptEl = document.getElementById('productTotal');
+  if(ptEl) ptEl.textContent = '₨'+Math.round(productAmt).toLocaleString('en-PK');
   const pm = lsGet('ksi_paymode',{v:'cod'}).v||'cod';
   const gg = lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax,paymode:'cod'});
   const whtPct  = gg.wht  || DEF.wht;
@@ -1681,12 +1710,14 @@ function calculate(){
 
   if(hasProduct){
     // Product + Delivery subtotal
-    const plusD      = productAmt + total;
-    const taxBase    = plusD; // WHT & Sales tax on product+delivery
-    const whtAmt     = showTax ? taxBase*(whtPct/100)  : 0;
-    const staxAmt    = showTax ? taxBase*(staxPct/100) : 0;
-    const codTaxTotal= whtAmt + staxAmt;
-    const grandTotal = plusD + codTaxTotal - discountAmt;
+    const discountAmt = discountType==='pct' ? productAmt*(discountVal/100) : discountVal;
+    const plusD       = productAmt + total;
+    const afterDisc   = plusD - discountAmt;
+    const taxBase     = afterDisc; // WHT & Sales tax on (product+delivery-discount)
+    const whtAmt      = showTax ? taxBase*(whtPct/100)  : 0;
+    const staxAmt     = showTax ? taxBase*(staxPct/100) : 0;
+    const codTaxTotal = whtAmt + staxAmt;
+    const grandTotal  = afterDisc + codTaxTotal;
 
     setT('bProduct',  fmt(productAmt));
     setT('bDelivery', fmt(total));
@@ -1758,7 +1789,11 @@ function calculate(){
     deliveryTotal: total,
     productAmt:   parseFloat(document.getElementById('productAmt')?.value)||0,
     productName:  document.getElementById('productName')?.value||'',
-    discountAmt:  parseFloat(document.getElementById('discountAmt')?.value)||0,
+    discountAmt:  discountAmt||0,
+    discountType: discountType,
+    discountVal:  discountVal,
+    productQty:   productQty,
+    unitPrice:    unitPrice,
     isCOD: lsGet('ksi_paymode',{v:'cod'}).v==='cod',
     whtPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).wht||DEF.wht,
     staxPct: lsGet('ksi_general',{wht:DEF.wht,stax:DEF.stax}).stax||DEF.stax,
@@ -1783,7 +1818,31 @@ function showPage(p,btn){
   if(pg){ pg.style.display='block'; pg.classList.add('active'); }
   if(btn) btn.classList.add('active');
   // Page-specific actions
-  if(p==='products'){ setTimeout(function(){ renderProducts(); updateProductDropdown(); },50); }
+  if(p==='products'){
+    setTimeout(function(){
+      renderProducts();
+      updateProductDropdown();
+      // Show free lock on products page
+      var prodLock = document.getElementById('prodFreeLock');
+      if(_licType==='free'){
+        if(!prodLock){
+          prodLock = document.createElement('div');
+          prodLock.id = 'prodFreeLock';
+          prodLock.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+          prodLock.innerHTML = '<div style="background:#1A1A1A;border:1px solid #D32F2F;border-radius:4px;padding:28px;max-width:340px;width:90%;text-align:center;">'+
+            '<div style="font-size:2rem;margin-bottom:12px;">&#128274;</div>'+
+            '<div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:3px;color:#F5F5F5;margin-bottom:8px;">ACTIVATE REQUIRED</div>'+
+            '<div style="font-size:.78rem;color:#888;line-height:1.6;margin-bottom:20px;">Products feature requires an active license.</div>'+
+            '<button onclick="openPricingTab()" style="width:100%;padding:12px;background:#D32F2F;border:none;border-radius:3px;color:white;font-family:Bebas Neue,sans-serif;font-size:1rem;letter-spacing:3px;cursor:pointer;margin-bottom:10px;">View Pricing</button>'+
+            '<button onclick="closeProdLock()" style="background:none;border:none;color:#555;font-size:.72rem;cursor:pointer;text-decoration:underline;">Back to Calculator</button>'+
+            '</div>';
+          document.body.appendChild(prodLock);
+        }
+      } else if(prodLock){
+        prodLock.remove();
+      }
+    },50);
+  }
   if(p==='settings'){ setTimeout(function(){ loadCompany(); },50); }
   if(p==='pricing'){  setTimeout(function(){ fetchPricingFromSheet(); },50); }
 }
@@ -2427,6 +2486,13 @@ async function initApp(){
   }
 }
 
+function closeProdLock(){
+  var el = document.getElementById('prodFreeLock');
+  if(el) el.remove();
+  var calcBtn = document.querySelector('.ntab');
+  if(calcBtn) showPage('calc', calcBtn);
+}
+
 // ══════════════════════════════════════════════
 //  BACKUP & RESTORE
 // ══════════════════════════════════════════════
@@ -2646,10 +2712,12 @@ function useProduct(id){
 
 function selectProduct(id){
   if(!id) return;
-  const prod = getProducts().find(p=>p.id==id);
+  var prods = getProducts();
+  var prod = null;
+  for(var i=0;i<prods.length;i++){ if(prods[i].id==id){ prod=prods[i]; break; } }
   if(!prod) return;
-  const nameEl = document.getElementById('productName');
-  const amtEl  = document.getElementById('productAmt');
+  var nameEl = document.getElementById('productName');
+  var amtEl  = document.getElementById('productAmt');
   if(nameEl) nameEl.value = prod.name;
   if(amtEl)  amtEl.value  = prod.price;
   calculate();
