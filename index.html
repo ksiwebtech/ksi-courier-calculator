@@ -2072,6 +2072,11 @@ document.addEventListener('click', function(e){
   }
 }, true);
 
+// Auto-refresh dropdown when localStorage changes (cross-tab or same page)
+window.addEventListener('storage', function(e){
+  if(e.key==='ksi_products'){ updateProductDropdown(); renderProducts(); }
+});
+
 
 let _licType = 'free'; // 'free' | '1year' | 'lifetime'
 
@@ -2304,11 +2309,10 @@ function useFreeVersion(){
   calculate();
   loadCompany();
   renderCart();
-  // Ensure dropdown populated after DOM ready
-  setTimeout(function(){
-    updateProductDropdown();
-    renderProducts();
-  }, 100);
+  // Populate dropdown at multiple intervals to ensure load
+  updateProductDropdown();
+  setTimeout(function(){ updateProductDropdown(); }, 200);
+  setTimeout(function(){ updateProductDropdown(); renderProducts(); }, 500);
 }
 
 // ── Apply license restrictions
@@ -2874,10 +2878,10 @@ function renderProducts(){
   if(!list) return;
   var searchEl = document.getElementById('prodSearch');
   var search = searchEl ? searchEl.value.toLowerCase() : '';
-  var prods = getProducts();
-  if(search) prods = prods.filter(function(p){
+  var allProds = getProducts();
+  var prods = search ? allProds.filter(function(p){
     return p.name.toLowerCase().indexOf(search)>-1 || (p.notes||'').toLowerCase().indexOf(search)>-1;
-  });
+  }) : allProds;
 
   if(!prods.length){
     list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.8rem;">'+(search?'No products found':'No products yet — add one above')+'</div>';
@@ -2885,18 +2889,72 @@ function renderProducts(){
   }
 
   var html = '';
-  prods.forEach(function(p){
-    html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:6px;">';
+  for(var i=0;i<prods.length;i++){
+    var p = prods[i];
+    html += '<div style="background:var(--dark);border:1px solid var(--bdr);border-radius:2px;margin-bottom:6px;" id="prod-row-'+p.id+'">';
+    // View row
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">';
     html += '<div style="flex:1;">';
     html += '<div style="font-size:.85rem;color:var(--txt);font-weight:500;">'+p.name+'</div>';
     if(p.notes) html += '<div style="font-size:.7rem;color:var(--dim);margin-top:2px;">'+p.notes+'</div>';
     html += '</div>';
-    html += '<div style="font-family:DM Mono,monospace;font-size:.9rem;color:var(--txt);margin-right:8px;">&#8360;'+Math.round(p.price).toLocaleString('en-PK')+'</div>';
-    html += '<button onclick="useProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.65rem;padding:5px 10px;cursor:pointer;letter-spacing:1px;white-space:nowrap;margin-right:4px;">Use</button>';
-    html += '<button onclick="deleteProduct('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.65rem;padding:5px 8px;cursor:pointer;">✕</button>';
+    html += '<div style="font-family:DM Mono,monospace;font-size:.88rem;color:var(--txt);margin-right:6px;">&#8360;'+Math.round(p.price).toLocaleString('en-PK')+'</div>';
+    html += '<button onclick="useProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.63rem;padding:5px 9px;cursor:pointer;letter-spacing:1px;white-space:nowrap;margin-right:3px;">Use</button>';
+    html += '<button onclick="editProduct('+p.id+')" style="background:rgba(255,193,7,.15);border:1px solid rgba(255,193,7,.3);border-radius:2px;color:#FFC107;font-size:.63rem;padding:5px 9px;cursor:pointer;margin-right:3px;">Edit</button>';
+    html += '<button onclick="deleteProduct('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.63rem;padding:5px 8px;cursor:pointer;">✕</button>';
     html += '</div>';
-  });
+    // Edit row (hidden)
+    html += '<div id="edit-row-'+p.id+'" style="display:none;padding:10px 12px;border-top:1px solid var(--bdr);background:rgba(255,255,255,.02);">';
+    html += '<div class="grid2" style="gap:8px;margin-bottom:8px;">';
+    html += '<div><label class="lbl">Name</label><input type="text" id="edit-name-'+p.id+'" value="'+p.name.replace(/"/g,'&quot;')+'" style="width:100%;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;color:var(--txt);font-family:DM Sans,sans-serif;font-size:.85rem;padding:7px 10px;outline:none;"></div>';
+    html += '<div><label class="lbl">Price (₨)</label><input type="number" id="edit-price-'+p.id+'" value="'+p.price+'" min="0" style="width:100%;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;color:var(--txt);font-family:DM Mono,sans-serif;font-size:.85rem;padding:7px 10px;outline:none;"></div>';
+    html += '</div>';
+    html += '<div style="margin-bottom:8px;"><label class="lbl">Notes</label><input type="text" id="edit-notes-'+p.id+'" value="'+(p.notes||'').replace(/"/g,'&quot;')+'" style="width:100%;background:var(--dark);border:1px solid var(--bdr);border-radius:2px;color:var(--txt);font-family:DM Sans,sans-serif;font-size:.85rem;padding:7px 10px;outline:none;"></div>';
+    html += '<div style="display:flex;gap:8px;">';
+    html += '<button onclick="saveEditProduct('+p.id+')" style="background:var(--red);border:none;border-radius:2px;color:white;font-size:.7rem;font-weight:600;padding:7px 14px;cursor:pointer;letter-spacing:1px;">💾 Save</button>';
+    html += '<button onclick="cancelEdit('+p.id+')" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.7rem;padding:7px 12px;cursor:pointer;">Cancel</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+  }
   list.innerHTML = html;
+}
+
+function editProduct(id){
+  // Close any other open edit rows
+  document.querySelectorAll('[id^="edit-row-"]').forEach(function(el){ el.style.display='none'; });
+  var row = document.getElementById('edit-row-'+id);
+  if(row) row.style.display='block';
+}
+
+function cancelEdit(id){
+  var row = document.getElementById('edit-row-'+id);
+  if(row) row.style.display='none';
+}
+
+function saveEditProduct(id){
+  var nameEl  = document.getElementById('edit-name-'+id);
+  var priceEl = document.getElementById('edit-price-'+id);
+  var notesEl = document.getElementById('edit-notes-'+id);
+  var name  = nameEl  ? nameEl.value.trim()  : '';
+  var price = parseFloat(priceEl ? priceEl.value : 0)||0;
+  var notes = notesEl ? notesEl.value.trim() : '';
+  if(!name){ alert('Name required'); return; }
+  if(!price){ alert('Price required'); return; }
+
+  var prods = getProducts();
+  for(var i=0;i<prods.length;i++){
+    if(prods[i].id==id){
+      prods[i].name  = name;
+      prods[i].price = price;
+      prods[i].notes = notes;
+      break;
+    }
+  }
+  saveProducts(prods);
+  renderProducts();
+  setTimeout(function(){ updateProductDropdown(); }, 50);
+  flash('saved-product');
 }
 
 function useProduct(id){
