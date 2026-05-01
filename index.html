@@ -598,7 +598,10 @@ input:focus,select:focus{border-color:var(--red);}
         <!-- Cart total -->
         <div id="cartTotalRow" style="display:none;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:2px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
           <span style="font-size:.7rem;color:var(--dim);">Products Subtotal</span>
-          <span style="font-family:'DM Mono',monospace;font-size:.9rem;color:var(--txt);" id="cartSubtotal">₨0</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:.9rem;color:var(--txt);" id="cartSubtotal">₨0</span>
+            <button onclick="clearCart()" title="Clear all" style="background:transparent;border:1px solid var(--bdr);border-radius:2px;color:var(--dim);font-size:.62rem;padding:2px 7px;cursor:pointer;">Clear</button>
+          </div>
         </div>
 
         <!-- Discount — shown only when items in cart -->
@@ -2304,15 +2307,6 @@ function useFreeVersion(){
   lsSet('ksi_license', {key:'', type:'free'});
   document.getElementById('licenseScreen').style.display = 'none';
   applyLicenseMode('free');
-  loadAll();
-  applyScToCalc(lsGet('ksi_courier',{v:'leopards'}).v||'leopards');
-  calculate();
-  loadCompany();
-  renderCart();
-  // Populate dropdown at multiple intervals to ensure load
-  updateProductDropdown();
-  setTimeout(function(){ updateProductDropdown(); }, 200);
-  setTimeout(function(){ updateProductDropdown(); renderProducts(); }, 500);
 }
 
 // ── Apply license restrictions
@@ -2530,24 +2524,35 @@ function checkExistingLicense(){
 }
 
 // ── INIT: Check license on load ──
+function _initUI(){
+  loadAll();
+  applyScToCalc(lsGet('ksi_courier',{v:'leopards'}).v||'leopards');
+  calculate();
+  loadCompany();
+  renderCart();
+  updateProductDropdown();
+  setTimeout(function(){ updateProductDropdown(); }, 300);
+}
+
 async function initApp(){
   const hasLic = checkExistingLicense();
 
   if(hasLic){
-    // Already activated — verify with server silently
     const savedLic = lsGet('ksi_license', null);
     const rawSavedType = savedLic ? (savedLic.type || 'free') : 'free';
-    const savedType = rawSavedType; // already normalized on save
     document.getElementById('licenseScreen').style.display = 'none';
-    applyLicenseMode(savedType);
+    applyLicenseMode(rawSavedType);
 
-    // Background verify (skip for free mode)
+    // Free mode — skip verify
     const licForVerify = lsGet('ksi_license', null);
     if(licForVerify && licForVerify.type === 'free'){
-      loadAll(); calculate(); return;
+      _initUI(); return;
     }
+
+    // Background verify for activated licenses
     try {
       const lic = lsGet('ksi_license', null);
+      if(!lic || !lic.key){ _initUI(); return; }
       const machine = getMachineId();
       const url = SCRIPT_URL +
         '?action=validate&key=' + encodeURIComponent(lic.key) +
@@ -2558,30 +2563,21 @@ async function initApp(){
       const data = await res.json();
 
       if(!data.success){
-        // Invalid — show license screen
         localStorage.removeItem('ksi_license');
         applyLicenseMode('free');
         document.getElementById('licenseScreen').style.display = 'flex';
       } else {
-        // Server ne sahi type return kiya — update local storage
         const serverType = (data.type||'').toLowerCase();
         let correctType = 'lifetime';
         if(serverType.includes('1') || serverType.includes('year')) correctType = '1year';
-        // Update saved license with correct type
         const lt = lsGet('ksi_license',null);
-        if(lt){
-          lt.type = correctType;
-          lsSet('ksi_license', lt);
-          applyLicenseMode(correctType);
-        }
+        if(lt){ lt.type = correctType; lsSet('ksi_license', lt); applyLicenseMode(correctType); }
       }
     } catch(e){
-      // Server unreachable — allow offline use
-      console.log('Offline mode');
+      console.log('Offline mode — skipping verify');
     }
 
-    loadAll();
-    calculate();
+    _initUI();
   } else {
     document.getElementById('licenseScreen').style.display = 'flex';
   }
@@ -2774,6 +2770,11 @@ function confirmManualAdd(){
   document.getElementById('manualName').value='';
   document.getElementById('manualPrice').value='';
   document.getElementById('manualQty').value='1';
+  calculate();
+}
+
+function clearCart(){
+  window._cart = [];
   calculate();
 }
 
