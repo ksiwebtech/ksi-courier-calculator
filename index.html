@@ -1931,27 +1931,28 @@ function pk(n){ return '₨'+Math.round(n).toLocaleString('en-PK'); }
 
 function buildSummaryText(){
   var L = _last;
-  if(!L.courierName || L.deliveryTotal===undefined) return 'Please select zone and enter weight first, then try again.';
-  var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+  if(!L.courierName || L.deliveryTotal===undefined) return 'Please calculate first — enter weight and select zone.';
   var co = {}; try{ var _cv=localStorage.getItem('ksi_company'); if(_cv) co=JSON.parse(_cv); }catch(e){}
   var lines = [];
 
-  // ── Company Header (from Settings > Company)
+  // Company header
   if(co.name)    lines.push(co.name.toUpperCase());
   if(co.tagline) lines.push(co.tagline);
   if(co.phone)   lines.push('Tel: ' + co.phone);
   if(co.email)   lines.push('Email: ' + co.email);
   if(co.city)    lines.push(co.city);
   if(co.website) lines.push(co.website);
-  lines.push(D);
+  if(co.name || co.phone) lines.push('');
+
   lines.push('Date: ' + new Date().toLocaleDateString('en-GB'));
+  lines.push('Courier: ' + L.courierName);
+  lines.push('');
 
   if(L.productAmt > 0){
+    lines.push('INVOICE / QUOTATION');
     lines.push('');
-    lines.push('QUOTATION / INVOICE');
-    lines.push(D);
 
-    // Products list from cart
+    // Products — qty format
     var cartList = L.cartItems || [];
     if(cartList.length > 0){
       for(var ci=0; ci<cartList.length; ci++){
@@ -1963,40 +1964,38 @@ function buildSummaryText(){
           lines.push(item.name + '   :  ' + pk(iTotal));
         }
       }
-    } else {
-      lines.push((L.productName||'Product') + '   :  ' + pk(L.productAmt));
+    } else if(L.productName){
+      lines.push(L.productName + '   :  ' + pk(L.productAmt));
+    }
+
+    lines.push('Delivery (' + L.weight + ' KG)  :  ' + pk(L.deliveryTotal));
+
+    if(L.discountAmt > 0){
+      var dLabel = L.discountType==='pct' ? 'Discount ('+L.discountVal+'%)' : 'Discount';
+      lines.push(dLabel + '  :  -' + pk(L.discountAmt));
+    }
+
+    lines.push('');
+
+    if(L.isCOD && L.whtAmt > 0)  lines.push('WHT (' + L.whtPct + '%)  :  ' + pk(L.whtAmt));
+    if(L.isCOD && L.staxAmt > 0) lines.push('Sales Tax (' + L.staxPct + '%)  :  ' + pk(L.staxAmt));
+
+    // Recalculate grandTotal fresh from _last values
+    var gt = L.grandTotal;
+    if(!gt || gt===0){
+      var disc = L.discountAmt||0;
+      var pd   = (L.productAmt||0) + (L.deliveryTotal||0);
+      var ad   = pd - disc;
+      gt = ad + (L.whtAmt||0) + (L.staxAmt||0);
     }
     lines.push('');
-    lines.push('Delivery Charges  :  ' + pk(L.deliveryTotal));
-    lines.push('Weight            :  ' + L.weight + ' KG');
-
-    // Discount
-    if(L.discountAmt > 0){
-      var discLbl = (L.discountType==='pct') ? 'Discount ('+L.discountVal+'%)' : 'Discount';
-      lines.push(discLbl + '  :  -' + pk(L.discountAmt));
-    }
-    lines.push(D);
-
-    // Taxes — use saved amounts from _last
-    if(L.isCOD && L.whtAmt > 0){
-      lines.push('WHT (' + L.whtPct + '%)           :  ' + pk(L.whtAmt));
-    }
-    if(L.isCOD && L.staxAmt > 0){
-      lines.push('Sales Tax (' + L.staxPct + '%)     :  ' + pk(L.staxAmt));
-    }
-    lines.push(D);
-    lines.push('*GRAND TOTAL      :  ' + pk(L.grandTotal) + '*');
-    lines.push(D);
+    lines.push('*GRAND TOTAL  :  ' + pk(gt) + '*');
 
   } else {
     // Delivery only
-    lines.push('');
     lines.push('DELIVERY CHARGES');
-    lines.push(D);
-    lines.push('Courier  :  ' + L.courierName);
     lines.push('Weight   :  ' + L.weight + ' KG');
     lines.push('Total    :  ' + pk(L.deliveryTotal));
-    lines.push(D);
   }
 
   return lines.join('\n');
@@ -3004,11 +3003,12 @@ function updateProductDropdown(){
 //  INIT
 // ══════════════════════════════════════════════
 // Run after DOM fully loaded
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', function(){ initApp(); });
-} else {
+// Wait for full page load including all resources
+window.addEventListener('load', function(){
   initApp();
-}
+  // Extra safety for dropdown
+  setTimeout(function(){ updateProductDropdown(); }, 1000);
+});
 </script>
 <!-- FREE MODE BAR -->
 <div class="activate-bar" id="activateBar">
