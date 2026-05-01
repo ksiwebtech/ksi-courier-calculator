@@ -2530,8 +2530,10 @@ function _initUI(){
   calculate();
   loadCompany();
   renderCart();
+  // Call at 3 intervals to guarantee DOM ready
   updateProductDropdown();
-  setTimeout(function(){ updateProductDropdown(); }, 300);
+  setTimeout(function(){ updateProductDropdown(); }, 200);
+  setTimeout(function(){ updateProductDropdown(); }, 800);
 }
 
 async function initApp(){
@@ -2824,7 +2826,7 @@ function renderCart(){
 
   if(countEl) countEl.textContent = window._cart.length + ' item'+(window._cart.length>1?'s':'');
   if(totalRow){ totalRow.style.display='flex'; }
-  if(subtotEl) subtotEl.textContent = '&#8360;'+total.toLocaleString('en-PK');
+  if(subtotEl) subtotEl.innerHTML = '₨'+total.toLocaleString('en-PK');
   if(discRow)  discRow.style.display = window._cart.length>0 ? 'block' : 'none';
 }
 
@@ -2979,9 +2981,11 @@ function useProduct(id){
 function selectProduct(id){ addFromDropdown(id); }
 
 function updateProductDropdown(){
-  var sel = document.getElementById('productSelect');
-  if(!sel) return;
-  // Read directly from localStorage for reliability
+  // Find ALL productSelect elements on page
+  var sels = document.querySelectorAll('#productSelect');
+  if(!sels.length) return;
+  
+  // Read directly from localStorage
   var prods = [];
   try{
     var raw = localStorage.getItem('ksi_products');
@@ -2992,13 +2996,19 @@ function updateProductDropdown(){
   for(var i=0;i<prods.length;i++){
     opts += '<option value="'+prods[i].id+'">'+prods[i].name+' — ₨'+Math.round(prods[i].price).toLocaleString('en-PK')+'</option>';
   }
-  sel.innerHTML = opts;
+  // Update all instances
+  sels.forEach(function(sel){ sel.innerHTML = opts; });
 }
 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-initApp();
+// Run after DOM fully loaded
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', function(){ initApp(); });
+} else {
+  initApp();
+}
 </script>
 <!-- FREE MODE BAR -->
 <div class="activate-bar" id="activateBar">
