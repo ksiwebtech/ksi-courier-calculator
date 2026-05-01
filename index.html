@@ -1865,7 +1865,7 @@ function showPage(p,btn){
 
   // Page-specific actions
   if(p==='calc'){
-    setTimeout(function(){ renderCart(); updateProductDropdown(); },50);
+    setTimeout(function(){ renderCart(); updateProductDropdown(); }, 150);
   }
   if(p==='products'){
     setTimeout(function(){
@@ -1896,10 +1896,13 @@ function showPage(p,btn){
   if(p==='pricing'){  setTimeout(function(){ fetchPricingFromSheet(); },50); }
 }
 function showStab(t,btn){
-  document.querySelectorAll('.stab-page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.stab').forEach(x=>x.classList.remove('active'));
-  document.getElementById('stab-'+t).classList.add('active');
+  document.querySelectorAll('.stab-page').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.stab').forEach(function(x){x.classList.remove('active');});
+  var pg = document.getElementById('stab-'+t);
+  if(pg) pg.classList.add('active');
   btn.classList.add('active');
+  // Load company when company tab opens
+  if(t==='company') setTimeout(function(){ loadCompany(); }, 50);
 }
 
 // ══════════════════════════════════════════════
@@ -2060,6 +2063,16 @@ function sendWA(type){
 // ═══════════════════════════════════════════════════════════
 
 // ── License state
+// One-time delegation for free mode btn-red
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('button.btn-red');
+  if(btn && btn.getAttribute('data-free')==='1'){
+    e.preventDefault(); e.stopPropagation();
+    showLicenseScreen();
+  }
+}, true);
+
+
 let _licType = 'free'; // 'free' | '1year' | 'lifetime'
 
 // ── Global pricing cache
@@ -2334,17 +2347,13 @@ function applyLicenseMode(type){
   if(settingsPage){
     var saveBtns = settingsPage.querySelectorAll('button.btn-red');
     saveBtns.forEach(function(el){
-      // Skip courier selector and payment mode buttons
       if(el.closest('.courier-list') || el.id==='pi-cod' || el.id==='pi-noncod') return;
+      // ONLY disable/enable — never touch onclick
       el.disabled = isFree;
       el.style.opacity = isFree ? '.4' : '';
       el.style.cursor  = isFree ? 'not-allowed' : '';
-      if(isFree){
-        el.setAttribute('data-orig-onclick', el.getAttribute('onclick')||'');
-        el.onclick = function(e){ e.preventDefault(); e.stopPropagation(); showLicenseScreen(); };
-      } else {
-        el.onclick = null;
-      }
+      // Add visual wrapper click in free mode via event listener
+      el.setAttribute('data-free', isFree ? '1' : '0');
     });
 
     // Free banner in settings
@@ -2913,7 +2922,13 @@ function selectProduct(id){ addFromDropdown(id); }
 function updateProductDropdown(){
   var sel = document.getElementById('productSelect');
   if(!sel) return;
-  var prods = getProducts();
+  // Read directly from localStorage for reliability
+  var prods = [];
+  try{
+    var raw = localStorage.getItem('ksi_products');
+    if(raw){ var p = JSON.parse(raw); if(Array.isArray(p)) prods = p; }
+  } catch(e){}
+
   var opts = '<option value="">+ Select saved product</option>';
   for(var i=0;i<prods.length;i++){
     opts += '<option value="'+prods[i].id+'">'+prods[i].name+' — ₨'+Math.round(prods[i].price).toLocaleString('en-PK')+'</option>';
