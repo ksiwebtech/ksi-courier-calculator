@@ -1390,7 +1390,7 @@ function lsGet(k,def){
 function lsSet(k,v){
   // In free mode, block saving except essential keys
   if(_licType==='free'){
-    var allowInFree=['ksi_license','ksi_machine_id','ksi_pricing_cache','ksi_courier','ksi_paymode'];
+    var allowInFree=['ksi_license','ksi_machine_id','ksi_pricing_cache','ksi_courier','ksi_paymode','ksi_company','ksi_products'];
     if(allowInFree.indexOf(k)===-1) return; // Block save in free mode
   }
   try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
@@ -1927,7 +1927,7 @@ function buildSummaryText(){
   var L = _last;
   if(!L.courierName || L.deliveryTotal===undefined) return 'Please select zone and enter weight first, then try again.';
   var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
-  var co = lsGet('ksi_company',{});
+  var co = {}; try{ var _cv=localStorage.getItem('ksi_company'); if(_cv) co=JSON.parse(_cv); }catch(e){}
   var lines = [];
 
   // ── Company Header (from Settings > Company)
@@ -2289,9 +2289,13 @@ function useFreeVersion(){
   loadAll();
   applyScToCalc(lsGet('ksi_courier',{v:'leopards'}).v||'leopards');
   calculate();
-  updateProductDropdown();
   loadCompany();
   renderCart();
+  // Ensure dropdown populated after DOM ready
+  setTimeout(function(){
+    updateProductDropdown();
+    renderProducts();
+  }, 100);
 }
 
 // ── Apply license restrictions
@@ -2676,13 +2680,22 @@ function saveCompany(){
     var el = document.getElementById(id);
     co[id.replace('co_','')] = el ? el.value.trim() : '';
   });
-  lsSet('ksi_company', co);
-  flash('saved-company');
-  updateInvoicePreview();
+  // Direct localStorage save (bypass lsSet restrictions)
+  try{
+    localStorage.setItem('ksi_company', JSON.stringify(co));
+    flash('saved-company');
+    updateInvoicePreview();
+  } catch(e){
+    alert('Could not save: '+e.message);
+  }
 }
 
 function loadCompany(){
-  var co = lsGet('ksi_company',{});
+  var co = {};
+  try{
+    var v = localStorage.getItem('ksi_company');
+    if(v) co = JSON.parse(v);
+  } catch(e){}
   CO_FIELDS.forEach(function(id){
     var el = document.getElementById(id);
     var key = id.replace('co_','');
@@ -2692,7 +2705,7 @@ function loadCompany(){
 }
 
 function updateInvoicePreview(){
-  var co = lsGet('ksi_company',{});
+  var co = {}; try{ var _cv=localStorage.getItem('ksi_company'); if(_cv) co=JSON.parse(_cv); }catch(e){}
   var el = document.getElementById('invoicePreview');
   if(!el) return;
   var lines = [];
@@ -2805,10 +2818,18 @@ function renderCart(){
 //  PRODUCTS MANAGER
 // ══════════════════════════════════════════════
 function getProducts(){
-  return lsGet('ksi_products', []);
+  try{
+    var v = localStorage.getItem('ksi_products');
+    if(!v) return [];
+    var parsed = JSON.parse(v);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){ return []; }
 }
 function saveProducts(prods){
-  lsSet('ksi_products', prods);
+  // Direct localStorage — always saveable
+  try{
+    localStorage.setItem('ksi_products', JSON.stringify(prods));
+  } catch(e){}
 }
 
 function addProduct(){
