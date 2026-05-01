@@ -1720,6 +1720,8 @@ function calculate(){
   const isCOD    = (pm==='cod');
   const hasProduct = productAmt > 0;
   const showTax  = isCOD && hasProduct;
+  // Pre-declare for _last scope
+  var discountAmt=0, plusD=0, afterDisc=0, whtAmt=0, staxAmt=0, codTaxTotal=0, grandTotal=0;
 
   // COD breakdown block visibility
   vis('codBreakdown', showTax);
@@ -1737,9 +1739,9 @@ function calculate(){
 
   if(hasProduct){
     // Product + Delivery subtotal
-    var discountAmt = discountType==='pct' ? Math.round(productAmt*(discountVal/100)) : discountVal;
-    const plusD       = productAmt + total;
-    const afterDisc   = plusD - discountAmt;
+    discountAmt = discountType==='pct' ? Math.round(productAmt*(discountVal/100)) : discountVal;
+    plusD       = productAmt + total;
+    afterDisc   = plusD - discountAmt;
     const taxBase     = afterDisc; // WHT & Sales tax on (product+delivery-discount)
     const whtAmt      = showTax ? taxBase*(whtPct/100)  : 0;
     const staxAmt     = showTax ? taxBase*(staxPct/100) : 0;
@@ -1862,13 +1864,16 @@ function showPage(p,btn){
   if(actBar && actBar.style.display!=='none') actBar.style.display = isCalc ? 'flex' : 'none';
 
   // Page-specific actions
+  if(p==='calc'){
+    setTimeout(function(){ renderCart(); updateProductDropdown(); },50);
+  }
   if(p==='products'){
     setTimeout(function(){
       renderProducts();
       updateProductDropdown();
       // Show free lock on products page
       var prodLock = document.getElementById('prodFreeLock');
-      if(_licType==='free'){
+      if(_licType==='free' || _licType===undefined || _licType===''){
         if(!prodLock){
           prodLock = document.createElement('div');
           prodLock.id = 'prodFreeLock';
@@ -1920,7 +1925,7 @@ function pk(n){ return '₨'+Math.round(n).toLocaleString('en-PK'); }
 
 function buildSummaryText(){
   var L = _last;
-  if(!L.deliveryTotal && L.deliveryTotal!==0) return 'Calculate first — enter weight and zone.';
+  if(!L.courierName || L.deliveryTotal===undefined) return 'Please select zone and enter weight first, then try again.';
   var D = '━━━━━━━━━━━━━━━━━━━━━━━━━';
   var co = lsGet('ksi_company',{});
   var lines = [];
@@ -2888,7 +2893,7 @@ function updateProductDropdown(){
   var sel = document.getElementById('productSelect');
   if(!sel) return;
   var prods = getProducts();
-  var opts = '<option value="">-- Enter amount manually --</option>';
+  var opts = '<option value="">+ Select saved product</option>';
   for(var i=0;i<prods.length;i++){
     opts += '<option value="'+prods[i].id+'">'+prods[i].name+' — ₨'+Math.round(prods[i].price).toLocaleString('en-PK')+'</option>';
   }
