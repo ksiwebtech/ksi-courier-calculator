@@ -766,7 +766,8 @@ input:focus,select:focus{border-color:#1A6FD4;background:#FFF;
         </div>
       </div>
     </div>
-  </div>
+  
+  <div style="text-align:center;padding:20px 0 8px;font-size:.72rem;color:#8FA3BF;border-top:1px solid #DCE4F0;margin-top:24px;">Powered by <a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" style="color:#1A6FD4;font-weight:700;text-decoration:none;">KSI Web Tech</a> &copy; <span id="cpYear"></span> All Rights Reserved.</div></div>
 </div>
 
 
@@ -866,15 +867,6 @@ input:focus,select:focus{border-color:#1A6FD4;background:#FFF;
 
     <div id="backupMsg" style="display:none;margin-top:10px;padding:8px 12px;border-radius:3px;font-size:.72rem;"></div>
   </div>
-
-  <!-- Footer -->
-  <div style="text-align:center;padding:20px 0 8px;font-size:.72rem;color:#8FA3BF;border-top:1px solid #DCE4F0;margin-top:24px;">
-    Powered by 
-    <a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;font-weight:700;text-decoration:none;">KSI Web Tech</a>
-    &nbsp;(<a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;text-decoration:underline;">https://www.ksiwebtech.com</a>)
-  </div>
 </div>
 </div>
 
@@ -925,23 +917,6 @@ input:focus,select:focus{border-color:#1A6FD4;background:#FFF;
       <div style="color:var(--rlight);font-size:.8rem;margin-bottom:12px;">❌ Could not load prices. Check your internet connection.</div>
       <button onclick="fetchPricingFromSheet()" class="btn btn-ghost">↺ Try Again</button>
     </div>
-  </div>
-
-  <!-- Footer -->
-  <div style="text-align:center;padding:20px 0 8px;font-size:.72rem;color:#8FA3BF;border-top:1px solid #DCE4F0;margin-top:24px;">
-    Powered by 
-    <a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;font-weight:700;text-decoration:none;">KSI Web Tech</a>
-    &nbsp;(<a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;text-decoration:underline;">https://www.ksiwebtech.com</a>)
-  </div>
-  <!-- Footer -->
-  <div style="text-align:center;padding:20px 0 8px;font-size:.72rem;color:#8FA3BF;border-top:1px solid #DCE4F0;margin-top:24px;">
-    Powered by 
-    <a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;font-weight:700;text-decoration:none;">KSI Web Tech</a>
-    &nbsp;(<a href="https://www.ksiwebtech.com" target="_blank" rel="noopener" 
-      style="color:#1A6FD4;text-decoration:underline;">https://www.ksiwebtech.com</a>)
   </div>
 </div>
 </div>
@@ -3106,5 +3081,6 @@ window.addEventListener('load', function(){
     <button onclick="closeWaModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
   </div>
 
+<script>var y=document.getElementById("cpYear");if(y)y.textContent=new Date().getFullYear();</script>
 </body>
 </html>
